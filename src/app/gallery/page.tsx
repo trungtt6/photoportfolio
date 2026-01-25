@@ -9,7 +9,6 @@ export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState<PhotoCategory | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadPhotos() {
@@ -25,8 +24,6 @@ export default function GalleryPage() {
       } catch (err) {
         console.warn('Could not load photos', err);
         setPhotos([]);
-      } finally {
-        setIsLoading(false);
       }
     }
     loadPhotos();
