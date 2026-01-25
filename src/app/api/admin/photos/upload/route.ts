@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { processPhoto, generatePhotoId, getFileSizeMB } from '@/lib/imageProcessor';
 import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -45,8 +44,11 @@ export async function POST(request: NextRequest) {
     const tempPath = path.join(tempDir, tempFileName);
 
     await writeFile(tempPath, buffer);
-    console.log(`✓ File saved to temp: ${tempPath} (${getFileSizeMB(buffer.byteLength)} MB)`);
+    console.log(`✓ File saved to temp: ${tempPath} (${buffer.byteLength / 1024 / 1024} MB)`);
 
+    // Dynamically import image processing functions
+    const { processPhoto, generatePhotoId, getFileSizeMB } = await import('@/lib/imageProcessor');
+    
     // Generate unique photo ID
     const photoId = generatePhotoId();
 
