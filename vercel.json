@@ -1,5 +1,8 @@
 {
   "functions": {
+    "src/app/api/admin/photos/upload/route.ts": {
+      "maxDuration": 30
+    },
     "src/app/api/storage/[...photo]/route.ts": {
       "maxDuration": 10
     }
@@ -8,5 +11,6 @@
     "env": {
       "NEXT_PUBLIC_STORAGE_URL": ""
     }
-  }
+  },
+  "regions": ["sin1"]
 }

@@ -27,6 +27,13 @@ export default function UploadPhotoPage() {
       return;
     }
 
+    // Check file size (max 4MB to stay under Vercel's limit)
+    const maxSize = 4 * 1024 * 1024; // 4MB
+    if (file.size > maxSize) {
+      setMessage(`❌ File too large. Please select an image under 4MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+      return;
+    }
+
     setLoading(true);
     const formData = new FormData();
     formData.append('file', file);
@@ -115,7 +122,7 @@ export default function UploadPhotoPage() {
                   ) : (
                     <div>
                       <p className="text-gray-400 mb-2">Click to upload or drag and drop</p>
-                      <p className="text-gray-500 text-sm">JPG, PNG, WebP up to 50MB</p>
+                      <p className="text-gray-500 text-sm">JPG, PNG, WebP up to 4MB</p>
                     </div>
                   )}
                 </label>
