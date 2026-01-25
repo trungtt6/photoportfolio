@@ -1,5 +1,4 @@
 import type { NextConfig } from 'next';
-import type { Configuration } from 'webpack';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -12,7 +11,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  webpack: (config: Configuration, { isServer }: { isServer: boolean }) => {
+  webpack: (config: any, { isServer }: { isServer: boolean }) => {
     if (!isServer) {
       config.resolve = config.resolve || {};
       config.resolve.fallback = {
