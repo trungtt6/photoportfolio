@@ -1,0 +1,11 @@
+# Exclude large image folders from deployment
+storage/temp/
+storage/originals/
+
+# Exclude development files
+.env.local
+.env.test
+*.log
+.DS_Store
+node_modules/
+.next/
