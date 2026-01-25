@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@/styles/globals.css';
 
 const geist = Geist({
@@ -50,11 +51,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geist.variable} ${geist_mono.variable} bg-gray-950 text-gray-100 font-sans`}>
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
+        <ThemeProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,28 +1,45 @@
 import { Photo } from '@/types';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useState } from 'react';
+import Lightbox from './Lightbox';
 
 interface GalleryCardProps {
   photo: Photo;
 }
 
 export default function GalleryCard({ photo }: GalleryCardProps) {
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsLightboxOpen(true);
+  };
+
   return (
-    <Link href={`/gallery/${photo.id}`}>
-      <div className="group bg-gray-900 rounded-lg overflow-hidden hover-lift h-full flex flex-col cursor-pointer border border-gray-800 hover:border-blue-500 transition">
+    <>
+      <Link href={`/gallery/${photo.id}`}>
+        <div className="group bg-gray-900 rounded-lg overflow-hidden hover-lift h-full flex flex-col cursor-pointer border border-gray-800 hover:border-blue-500 transition">
         {/* Image Container */}
         <div className="relative overflow-hidden bg-gray-800 aspect-square">
           {/* Image */}
-          <img
+          <Image
             src={photo.imageUrl}
             alt={photo.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+            width={photo.width}
+            height={photo.height}
+            className="w-full h-full object-cover group-hover:scale-110 transition duration-500 cursor-pointer"
+            loading="lazy"
+            placeholder="blur"
+            onClick={handleImageClick}
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"
           />
           
           {/* Overlay */}
-          <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+          <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity duration-300 pointer-events-none"></div>
 
           {/* Overlay Buttons */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
             <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">
               View Details
             </button>
@@ -60,5 +77,13 @@ export default function GalleryCard({ photo }: GalleryCardProps) {
         </div>
       </div>
     </Link>
+      
+      {/* Lightbox */}
+      <Lightbox 
+        photo={photo} 
+        isOpen={isLightboxOpen} 
+        onClose={() => setIsLightboxOpen(false)} 
+      />
+    </>
   );
 }

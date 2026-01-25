@@ -6,8 +6,62 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
-  @apply antialiased;
+/* Light mode styles */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  @apply antialiased bg-white text-gray-900;
+}
+
+html.light .bg-gray-950 {
+  @apply bg-white;
+}
+
+html.light .bg-gray-900 {
+  @apply bg-gray-50;
+}
+
+html.light .bg-gray-800 {
+  @apply bg-gray-100;
+}
+
+html.light .bg-black {
+  @apply bg-white;
+}
+
+html.light .text-white {
+  @apply text-gray-900;
+}
+
+html.light .text-gray-400 {
+  @apply text-gray-600;
+}
+
+html.light .text-gray-500 {
+  @apply text-gray-700;
+}
+
+html.light .border-gray-800 {
+  @apply border-gray-300;
+}
+
+html.light .hover\:bg-gray-700:hover {
+  @apply hover:bg-gray-200;
+}
+
+html.light .hover\:text-gray-300:hover {
+  @apply hover:text-gray-700;
+}
+
+/* Dark mode styles (default) */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  @apply antialiased bg-gray-950 text-gray-100;
 }
 
 * {
