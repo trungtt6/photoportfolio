@@ -11,7 +11,6 @@ interface Status {
 
 export default function AdminDashboard() {
   const [status, setStatus] = useState<Status | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     checkConnection();
@@ -29,8 +28,6 @@ export default function AdminDashboard() {
         status: 'disconnected',
         message: 'Failed to reach API',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
