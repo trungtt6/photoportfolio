@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import path from 'path';
 import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -13,15 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json(
-        { error: 'File must be an image' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file size (max 4MB for Vercel)
+    // Check file size (max 4MB for Vercel)
     const maxSize = 4 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
@@ -30,13 +24,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For Vercel serverless, we can't process images with Sharp
-    // Instead, we'll save the metadata and instruct user to add images manually
-    
+    // For now, save basic info without processing
+    // In production, you'd use a cloud storage service
     const photoId = `photo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
     // Save to database
-    console.log('\n💾 Saving to database...');
     try {
       await prisma.photo.create({
         data: {
@@ -57,7 +49,6 @@ export async function POST(request: NextRequest) {
           originalSizeMB: parseFloat((file.size / 1024 / 1024).toFixed(2)),
         },
       });
-      console.log(`✓ Photo metadata saved to database (ID: ${photoId})`);
     } catch (dbError) {
       console.error('Database error:', dbError);
       return NextResponse.json(
@@ -66,16 +57,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Return success
     return NextResponse.json({
       success: true,
       photoId,
-      message: 'Photo metadata saved successfully',
-      note: 'Image processing is disabled on Vercel. Please add processed images to public/storage/ folder',
+      message: 'Photo information saved successfully',
+      note: 'Image processing disabled on Vercel. Please process images locally and upload to public/storage/',
     });
+
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Upload failed' },
+      { error: 'Failed to process upload' },
       { status: 500 }
     );
   }
