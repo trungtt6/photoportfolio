@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { google } from 'googleapis';
 import prisma from '@/lib/prisma';
+
+// Configure Google Drive API
+const auth = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  scopes: ['https://www.googleapis.com/auth/drive.file'],
+});
+
+const drive = google.drive({ version: 'v3', auth });
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,8 +25,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check file size (max 4MB for Vercel)
-    const maxSize = 4 * 1024 * 1024;
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json(
+        { error: 'File must be an image' },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size (max 10MB for Google Drive)
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
         { error: `File too large. Max ${maxSize / 1024 / 1024}MB` },
@@ -22,17 +42,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, save basic info without processing
-    // In production, you'd use a cloud storage service
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Generate unique photo ID
     const photoId = `photo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
+    // Upload to Google Drive
+    const driveResponse = await drive.files.create({
+      requestBody: {
+        name: `${photoId}.jpg`,
+        parents: [process.env.GOOGLE_DRIVE_FOLDER_ID!],
+      },
+      media: {
+        mimeType: file.type,
+        body: buffer,
+      },
+    });
+
+    // Make file public
+    await drive.permissions.create({
+      fileId: driveResponse.data.id!,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+
+    // Get public URL
+    const publicUrl = `https://drive.google.com/uc?id=${driveResponse.data.id}`;
+
     // Save to database
     try {
       await prisma.photo.create({
         data: {
           photoId,
           filename: file.name,
-          storagePath: `/storage/processed/${photoId}.jpg`,
+          storagePath: publicUrl,
           title: (formData.get('title') as string) || file.name.replace(/\.[^/.]+$/, ''),
           description: (formData.get('description') as string) || '',
           category: (formData.get('category') as string) || 'landscape',
@@ -55,18 +102,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Return success
     return NextResponse.json({
       success: true,
       photoId,
-      message: 'Photo information saved successfully',
-      note: 'Image processing disabled on Vercel. Please process images locally and upload to public/storage/',
+      message: 'Photo uploaded to Google Drive successfully',
+      url: publicUrl,
+      driveFileId: driveResponse.data.id,
     });
 
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to process upload' },
+      { error: error instanceof Error ? error.message : 'Upload failed' },
       { status: 500 }
     );
   }
