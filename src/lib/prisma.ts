@@ -3,11 +3,7 @@ import { PrismaClient } from '@prisma/client';
 // Avoid instantiating Prisma in every request
 // This pattern prevents connection pool exhaustion
 declare global {
-  namespace NodeJS {
-    interface Global {
-      prisma: PrismaClient;
-    }
-  }
+  var prisma: PrismaClient | undefined;
 }
 
 let prisma: PrismaClient;
