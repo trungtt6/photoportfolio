@@ -139,7 +139,7 @@ export default function AdminPhotosPage() {
                     {/* Photo Preview */}
                     <div className="flex gap-4 pb-4 border-b border-gray-800">
                       <img
-                        src={photo.imageUrl || `/api/storage/processed/${photo.id}.jpg`}
+                        src={photo.imageUrl || `/storage/processed/${photo.id}.jpg`}
                         alt={photo.title}
                         className="w-40 h-40 object-cover rounded-lg border border-gray-700"
                       />
@@ -265,7 +265,7 @@ export default function AdminPhotosPage() {
                     {/* Thumbnail */}
                     <div className="flex-shrink-0">
                       <img
-                        src={photo.imageUrl || `/api/storage/processed/${photo.id}.jpg`}
+                        src={photo.imageUrl || `/storage/processed/${photo.id}.jpg`}
                         alt={photo.title}
                         className="w-32 h-32 object-cover rounded-lg border border-gray-700"
                       />

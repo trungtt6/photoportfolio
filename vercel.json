@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "src/app/api/storage/[...photo]/route.ts": {
+      "maxDuration": 10
+    }
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_STORAGE_URL": ""
+    }
+  }
+}
