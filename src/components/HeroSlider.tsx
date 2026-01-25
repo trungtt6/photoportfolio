@@ -25,8 +25,6 @@ export default function HeroSlider({ photos }: HeroSliderProps) {
 
   if (photos.length === 0) return null;
 
-  const currentPhoto = photos[currentIndex];
-
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
     setAutoPlay(false);
