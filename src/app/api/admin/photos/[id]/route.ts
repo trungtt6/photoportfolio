@@ -4,11 +4,12 @@ import prisma from '@/lib/prisma';
 // GET specific photo
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const photo = await prisma.photo.findUnique({
-      where: { photoId: params.id },
+      where: { photoId: id },
     });
 
     if (!photo) {
@@ -31,13 +32,14 @@ export async function GET(
 // PUT - Update photo
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
 
     const photo = await prisma.photo.update({
-      where: { photoId: params.id },
+      where: { photoId: id },
       data: {
         title: body.title,
         description: body.description,
@@ -66,11 +68,12 @@ export async function PUT(
 // DELETE - Remove photo
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.photo.delete({
-      where: { photoId: params.id },
+      where: { photoId: id },
     });
 
     return NextResponse.json({ success: true });
