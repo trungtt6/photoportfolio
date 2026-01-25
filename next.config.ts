@@ -13,7 +13,7 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['sharp'],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config: any, { isServer }: { isServer: boolean }) => {
     // Exclude storage directory from being bundled
     config.ignoreWarnings = [{ module: /storage/ }];
     
