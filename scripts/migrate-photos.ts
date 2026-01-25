@@ -45,7 +45,7 @@ async function migratePhotos() {
         const fileSizeMB = fileStats.size / (1024 * 1024);
 
         // Create database record
-        const photo = await prisma.photo.create({
+        await prisma.photo.create({
           data: {
             photoId,
             filename: file,

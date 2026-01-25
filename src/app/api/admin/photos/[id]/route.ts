@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 
 // GET specific photo
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -67,7 +67,7 @@ export async function PUT(
 
 // DELETE - Remove photo
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

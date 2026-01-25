@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     // Save to database
     console.log('\n💾 Saving to database...');
     try {
-      const photo = await prisma.photo.create({
+      await prisma.photo.create({
         data: {
           photoId: photoId,
           filename: file.name,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
           originalSizeMB: parseFloat(getFileSizeMB(result.sizes!.original)),
         },
       });
-      console.log(`✓ Photo saved to database (ID: ${photo.id})`);
+      console.log(`✓ Photo saved to database (ID: ${photoId})`);
     } catch (dbError) {
       console.error('Database error:', dbError);
       return NextResponse.json(
