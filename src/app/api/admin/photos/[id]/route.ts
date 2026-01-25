@@ -1,0 +1,84 @@
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+
+// GET specific photo
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const photo = await prisma.photo.findUnique({
+      where: { photoId: params.id },
+    });
+
+    if (!photo) {
+      return NextResponse.json(
+        { error: 'Photo not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(photo);
+  } catch (error) {
+    console.error('Error fetching photo:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch photo' },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - Update photo
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const body = await request.json();
+
+    const photo = await prisma.photo.update({
+      where: { photoId: params.id },
+      data: {
+        title: body.title,
+        description: body.description,
+        category: body.category,
+        tags: body.tags,
+        featured: body.featured,
+        visible: body.visible,
+        price: body.price,
+        licensingAvailable: body.licensingAvailable,
+        location: body.location,
+        dateTaken: body.dateTaken ? new Date(body.dateTaken) : undefined,
+        notes: body.notes,
+      },
+    });
+
+    return NextResponse.json(photo);
+  } catch (error) {
+    console.error('Error updating photo:', error);
+    return NextResponse.json(
+      { error: 'Failed to update photo' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE - Remove photo
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await prisma.photo.delete({
+      where: { photoId: params.id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting photo:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete photo' },
+      { status: 500 }
+    );
+  }
+}
