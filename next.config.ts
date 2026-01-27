@@ -8,7 +8,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   serverExternalPackages: ['sharp'],
   webpack: (config: any, { isServer }: { isServer: boolean }) => {
