@@ -119,6 +119,7 @@ export default async function handler(
       data: {
         photoId,
         filename: file.originalFilename || '',
+        storagePath: `https://drive.google.com/uc?id=${processedUpload.fileId}`,
         title,
         description,
         category,
