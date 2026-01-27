@@ -49,7 +49,7 @@ export default async function handler(
     const baseFileName = `${photoId}.${fileExtension}`;
 
     // Upload original file
-    const originalUpload = await uploadFile(
+    await uploadFile(
       fileBuffer,
       baseFileName,
       file.mimetype || 'image/jpeg',
@@ -99,7 +99,7 @@ export default async function handler(
 
     // Upload thumbnail
     const thumbnailFileName = `${photoId}_thumb.jpg`;
-    const thumbnailUpload = await uploadFile(
+    await uploadFile(
       thumbnailBuffer,
       thumbnailFileName,
       'image/jpeg',
