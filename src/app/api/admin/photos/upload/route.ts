@@ -36,7 +36,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // File size validation removed - Google Drive can handle large files
+    // Check file size - warn if too large for Vercel
+    const maxSize = 4 * 1024 * 1024; // 4MB Vercel limit
+    const isLargeFile = file.size > maxSize;
+
+    if (isLargeFile) {
+      // For large files, return error with info
+      return NextResponse.json({
+        error: 'FILE_TOO_LARGE',
+        message: `File is ${(file.size / 1024 / 1024).toFixed(2)}MB. Vercel limits uploads to 4MB. Please compress your image or use a smaller file.`,
+        maxSize: maxSize,
+        currentSize: file.size,
+      }, { status: 413 });
+    }
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
