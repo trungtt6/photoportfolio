@@ -1,0 +1,59 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Photo {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // File info
+  photoId       String   @unique
+  filename      String
+  storagePath   String?  // Legacy: Path in storage/processed/ (kept for backward compatibility)
+  
+  // Google Drive info
+  googleDriveId String?  // File ID in Google Drive
+  googleDriveUrl String? // Public URL from Google Drive
+  originalDriveId String? // Original file ID in Google Drive
+  thumbnailDriveId String? // Thumbnail file ID in Google Drive
+  
+  // Display info
+  title         String
+  description   String?
+  category      String   @default("landscape")
+  tags          String[]
+  
+  // Metadata
+  featured      Boolean  @default(false)
+  visible       Boolean  @default(true)
+  price         Float    @default(49.99)
+  licensingAvailable Boolean @default(true)
+  
+  // Photo details
+  width         Int      @default(3200)
+  height        Int      @default(2400)
+  dateTaken     DateTime?
+  location      String?  // e.g., "Mountain Range, Colorado"
+  
+  // Timestamps
+  uploadedAt    DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // File sizes for reference
+  originalSizeMB Float?   // Original file size
+  processedSizeMB Float?  // After watermarking
+  
+  // Admin notes
+  notes         String?
+  
+  @@index([featured])
+  @@index([category])
+  @@index([visible])
+}
