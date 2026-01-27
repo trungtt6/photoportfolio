@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Get public URL
-    const publicUrl = `https://drive.google.com/uc?id=${driveResponse.data.id}`;
+    // Get public URL - use direct image link
+    const publicUrl = `https://lh3.googleusercontent.com/d/${driveResponse.data.id}`;
 
     // Save to database
     try {
