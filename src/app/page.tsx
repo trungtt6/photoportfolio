@@ -37,7 +37,7 @@ export default async function Home() {
   return (
     <div className="bg-gray-950">
       {/* Hero Slider */}
-      <HeroSlider photos={photos} />
+      <HeroSlider photos={featuredPhotos} />
 
       {/* Featured Photos Section */}
       <section className="py-24 bg-gray-950">
