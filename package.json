@@ -4,11 +4,11 @@
   "description": "Professional camera photography portfolio website",
   "private": true,
   "scripts": {
-    "dev": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules\\.bin\\next dev",
-    "build": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules\\.bin\\prisma generate && \"C:\\Program Files\\nodejs\\node.exe\" node_modules\\.bin\\next build",
-    "start": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules\\.bin\\next start",
-    "lint": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules\\.bin\\next lint",
-    "postinstall": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules\\.bin\\prisma generate"
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
