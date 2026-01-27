@@ -18,8 +18,8 @@ export async function GET() {
           id: photo.photoId,
           title: photo.title,
           description: photo.description || '',
-          imageUrl: photo.googleDriveUrl || `/api/storage/processed/${photo.photoId}.jpg`,
-          thumbnailUrl: photo.thumbnailDriveId ? `https://drive.google.com/uc?id=${photo.thumbnailDriveId}` : `/api/storage/references/${photo.photoId}/thumb.jpg`,
+          imageUrl: photo.storagePath || `/api/storage/processed/${photo.photoId}.jpg`,
+          thumbnailUrl: photo.storagePath || `/api/storage/references/${photo.photoId}/thumb.jpg`,
           category: photo.category as any,
           tags: photo.tags,
           date: photo.dateTaken?.toISOString().split('T')[0] || photo.uploadedAt?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
@@ -28,6 +28,7 @@ export async function GET() {
           featured: photo.featured,
           price: photo.price,
           licensingAvailable: photo.licensingAvailable,
+          storagePath: photo.storagePath,
         }));
 
         return NextResponse.json(formattedPhotos);
