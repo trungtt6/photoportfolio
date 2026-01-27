@@ -37,7 +37,7 @@ export default function UploadPhotoPage() {
     formData.append('featured', featured.toString());
 
     try {
-      const response = await fetch('/api/admin/photos/upload', {
+      const response = await fetch('/api/photos/upload-drive', {
         method: 'POST',
         body: formData,
       });

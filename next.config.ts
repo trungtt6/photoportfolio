@@ -10,9 +10,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  experimental: {
-    serverComponentsExternalPackages: ['sharp'],
-  },
+  serverExternalPackages: ['sharp'],
   webpack: (config: any, { isServer }: { isServer: boolean }) => {
     // Exclude storage directory from being bundled
     config.ignoreWarnings = [{ module: /storage/ }];
