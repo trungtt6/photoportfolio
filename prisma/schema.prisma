@@ -16,7 +16,13 @@ model Photo {
   // File info
   photoId       String   @unique
   filename      String
-  storagePath   String   // Path in storage/processed/
+  storagePath   String?  // Legacy: Path in storage/processed/ (kept for backward compatibility)
+  
+  // Google Drive info
+  googleDriveId String?  // File ID in Google Drive
+  googleDriveUrl String? // Public URL from Google Drive
+  originalDriveId String? // Original file ID in Google Drive
+  thumbnailDriveId String? // Thumbnail file ID in Google Drive
   
   // Display info
   title         String

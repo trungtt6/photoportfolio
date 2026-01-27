@@ -234,6 +234,210 @@ storage/
 - ✅ Admin dashboard for photo management
 - ✅ Database-driven photo system
 
+---
+
+## Phase 2.5: Google Drive Integration for Photo Storage
+
+### Overview
+**IMPORTANT: Photos should NOT be uploaded to the website directly.** Instead, all photos will be stored in Google Drive and the website will reference them from there.
+
+### Google Drive Storage Strategy
+
+**1. Primary Storage - Google Drive**
+- All original photos stored in Google Drive
+- Organized in folders by category/date
+- No photos stored on the website server
+- Google Drive serves as the single source of truth
+
+**2. Website Integration**
+- Website displays photos by linking to Google Drive
+- Uses Google Drive API or direct shareable links
+- Photos are loaded dynamically from Google Drive
+- Local cache only for thumbnails/performance
+
+**3. Benefits of Google Drive Storage**
+- **Unlimited Storage** - No server storage limitations
+- **Backup & Security** - Google's enterprise-grade security
+- **Easy Management** - Upload/organize via Google Drive interface
+- **Cost Effective** - No need for expensive hosting storage
+- **Scalability** - Handle thousands of photos easily
+- **Accessibility** - Access photos from anywhere
+
+**4. Implementation Approach**
+```typescript
+// Photo metadata in MongoDB
+{
+  id: "photo_123",
+  title: "Mountain Sunrise",
+  googleDriveId: "1ABC...xyz", // Google Drive file ID
+  googleDriveUrl: "https://drive.google.com/uc?id=1ABC...xyz",
+  thumbnailUrl: "https://drive.google.com/thumbnail?id=1ABC...xyz",
+  category: "landscape",
+  uploadedAt: new Date()
+}
+```
+
+**5. Upload Workflow**
+1. Photographer logs into website admin panel
+2. Uses the web interface to upload photos (drag & drop or file selector)
+3. Website automatically:
+   - Uploads original file to Google Drive `originals/` folder
+   - Processes the image (resize, add watermark)
+   - Uploads processed version to Google Drive `processed/` folder
+   - Generates and uploads thumbnail to Google Drive `thumbnails/` folder
+   - Stores Google Drive file IDs in MongoDB
+4. Photos appear on website automatically
+5. Admin can manage all photos through the web interface
+
+**6. Technical Implementation**
+- Google Drive API for server-side file uploads
+- Service account for automated access to Google Drive
+- Automatic image processing (resize, watermark) before upload
+- Direct link generation for photos using Google Drive IDs
+- Lazy loading for performance
+- No manual Google Drive interaction needed
+
+**7. Folder Structure in Google Drive**
+```
+PhotoPortfolio/                          # Main folder in your Google Drive
+├── originals/                           # Full resolution RAW/original files
+│   ├── landscape/                       # Landscape photography
+│   │   ├── 2024-01-mountain-sunset.NEF
+│   │   ├── 2024-01-lake-reflection.CR2
+│   │   └── 2024-02-forest-mist.NEF
+│   ├── portrait/                        # Portrait photography
+│   │   ├── 2024-01-studio-portrait.NEF
+│   │   └── 2024-02-outdoor-portrait.CR2
+│   ├── events/                          # Event photography
+│   │   ├── wedding-2024-01/
+│   │   └── birthday-2024-02/
+│   └── commercial/                      # Commercial work
+│       ├── product-2024-01/
+│       └── corporate-2024-02/
+│
+├── processed/                           # Web-ready versions (watermarked)
+│   ├── landscape/
+│   │   ├── mountain-sunset-3200px.jpg      # 3200px wide, watermarked
+│   │   ├── lake-reflection-3200px.jpg
+│   │   └── forest-mist-3200px.jpg
+│   ├── portrait/
+│   │   ├── studio-portrait-3200px.jpg
+│   │   └── outdoor-portrait-3200px.jpg
+│   └── events/
+│       └── [same folder structure as originals]
+│
+├── thumbnails/                          # Small thumbnails for gallery
+│   ├── landscape/
+│   │   ├── mountain-sunset-thumb-400px.jpg
+│   │   ├── lake-reflection-thumb-400px.jpg
+│   │   └── forest-mist-thumb-400px.jpg
+│   ├── portrait/
+│   │   ├── studio-portrait-thumb-400px.jpg
+│   │   └── outdoor-portrait-thumb-400px.jpg
+│   └── events/
+│       └── [same folder structure as originals]
+│
+└── metadata/                            # Optional: Store metadata files
+    ├── landscape-photos.json
+    ├── portrait-photos.json
+    └── events-photos.json
+```
+
+**8. File Naming Convention**
+- **Originals**: `YYYY-MM-description.extension`
+  - Example: `2024-01-mountain-sunset.NEF`
+- **Processed**: `description-widthpx.jpg`
+  - Example: `mountain-sunset-3200px.jpg`
+- **Thumbnails**: `description-thumb-400px.jpg`
+  - Example: `mountain-sunset-thumb-400px.jpg`
+
+**9. Website Admin Upload Process**
+
+**What the Admin Sees:**
+1. Login to website admin panel
+2. Click "Upload Photos" button
+3. Drag & drop photos or select files
+4. Fill in photo details (title, description, category)
+5. Click "Upload"
+6. Photos are automatically processed and appear on website
+
+**What Happens Behind the Scenes:**
+1. Website receives uploaded files
+2. System processes each photo:
+   - Generates unique ID for the photo
+   - Creates folder structure in Google Drive if needed
+   - Uploads original file to `PhotoPortfolio/originals/[category]/`
+   - Resizes image to 3200px width
+   - Adds watermark with photographer name
+   - Uploads processed version to `PhotoPortfolio/processed/[category]/`
+   - Creates 400px thumbnail
+   - Uploads thumbnail to `PhotoPortfolio/thumbnails/[category]/`
+3. Stores all Google Drive file IDs in MongoDB
+4. Updates website gallery automatically
+
+**No Manual Google Drive Access Required!**
+- Admin never needs to open Google Drive
+- All file management done through website
+- Google Drive is just storage backend
+- Website handles all folder creation and file organization
+
+**10. Access Control**
+- **Originals folder**: Keep private (only you can access)
+- **Processed folder**: Share with website service account
+- **Thumbnails folder**: Public access for website display
+- Use Google Drive sharing settings to control access
+
+**11. Benefits of This Structure**
+- **Organized**: Easy to find any photo by date/category
+- **Scalable**: Can add new categories anytime
+- **Backup**: Google Drive automatically backs up everything
+- **Version Control**: Keep originals separate from web versions
+- **Professional**: RAW files preserved for client delivery
+
+---
+
+## Phase 2.5: Google Drive Integration - Task List
+
+### Setup Tasks
+- [x] Create Google Cloud Project
+- [x] Enable Google Drive API
+- [x] Create Service Account credentials
+- [x] Set up OAuth2.0 for authentication
+- [x] Configure environment variables in `.env.local`
+- [x] Install Google Drive SDK packages
+
+### Backend Implementation
+- [x] Create Google Drive service module
+- [x] Implement file upload functions
+- [x] Create folder structure management
+- [x] Add image processing pipeline (resize, watermark)
+- [x] Implement thumbnail generation
+- [x] Create API endpoints for photo management
+- [x] Update MongoDB schema to store Google Drive IDs
+
+### Frontend Implementation
+- [ ] Update admin panel upload interface
+- [ ] Add progress indicators for uploads
+- [ ] Create photo management UI (view, delete, update)
+- [ ] Implement batch upload functionality
+- [ ] Add photo metadata editing forms
+- [ ] Update gallery to display Google Drive images
+
+### Testing & Deployment
+- [ ] Test upload workflow with various file types
+- [ ] Test large file uploads (>10MB)
+- [ ] Verify watermarking works correctly
+- [ ] Test image quality and compression
+- [ ] Deploy to Vercel and test production
+- [ ] Set up Google Drive sharing permissions
+- [ ] Create backup strategy for Google Drive
+
+### Documentation
+- [ ] Document Google Drive setup process
+- [ ] Create user guide for photo uploads
+- [ ] Document API endpoints
+- [ ] Add troubleshooting guide
+
 ### Other Phase 2 Features
 - ✅ Image lazy loading (IMPLEMENTED)
 - ✅ Lightbox/modal for full-size photo viewing (IMPLEMENTED)
