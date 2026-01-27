@@ -37,6 +37,15 @@ export default async function handler(
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    // Check file size only on Vercel
+    const isVercel = req.headers.host?.includes('vercel.app');
+    if (isVercel && file.size > 4 * 1024 * 1024) {
+      return res.status(413).json({
+        error: 'FILE_TOO_LARGE',
+        message: `File is ${(file.size / 1024 / 1024).toFixed(2)}MB. Vercel limits uploads to 4MB.`,
+      });
+    }
+
     // Read file buffer
     const fileBuffer = require('fs').readFileSync(file.filepath);
 

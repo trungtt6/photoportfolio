@@ -36,18 +36,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check file size - warn if too large for Vercel
-    const maxSize = 4 * 1024 * 1024; // 4MB Vercel limit
-    const isLargeFile = file.size > maxSize;
+    // Check file size only on Vercel (not localhost)
+    const isVercel = request.headers.get('host')?.includes('vercel.app');
+    if (isVercel) {
+      const maxSize = 4 * 1024 * 1024; // 4MB Vercel limit
+      const isLargeFile = file.size > maxSize;
 
-    if (isLargeFile) {
-      // For large files, return error with info
-      return NextResponse.json({
-        error: 'FILE_TOO_LARGE',
-        message: `File is ${(file.size / 1024 / 1024).toFixed(2)}MB. Vercel limits uploads to 4MB. Please compress your image or use a smaller file.`,
-        maxSize: maxSize,
-        currentSize: file.size,
-      }, { status: 413 });
+      if (isLargeFile) {
+        // For large files, return error with info
+        return NextResponse.json({
+          error: 'FILE_TOO_LARGE',
+          message: `File is ${(file.size / 1024 / 1024).toFixed(2)}MB. Vercel limits uploads to 4MB. Please compress your image or use a smaller file.`,
+          maxSize: maxSize,
+          currentSize: file.size,
+        }, { status: 413 });
+      }
     }
 
     // Convert file to buffer
