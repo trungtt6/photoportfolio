@@ -36,14 +36,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 10MB for Google Drive)
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { error: `File too large. Max ${maxSize / 1024 / 1024}MB` },
-        { status: 400 }
-      );
-    }
+    // File size validation removed - Google Drive can handle large files
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
