@@ -56,11 +56,12 @@ export async function POST(request: NextRequest) {
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
-    let buffer = Buffer.from(bytes);
+    const originalBuffer = Buffer.from(bytes);
+    let processedBuffer: Buffer;
 
     // Add watermark
     try {
-      buffer = await sharp(buffer)
+      processedBuffer = await sharp(originalBuffer)
         .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
         .composite([{
           input: Buffer.from(`
@@ -76,7 +77,8 @@ export async function POST(request: NextRequest) {
         .toBuffer();
     } catch (error) {
       console.error('Watermark failed:', error);
-      // Continue with original buffer if watermark fails
+      // Use original buffer if watermark fails
+      processedBuffer = originalBuffer;
     }
 
     // Generate unique photo ID
@@ -90,7 +92,7 @@ export async function POST(request: NextRequest) {
       },
       media: {
         mimeType: 'image/jpeg',
-        body: buffer,
+        body: processedBuffer,
       },
     });
 
