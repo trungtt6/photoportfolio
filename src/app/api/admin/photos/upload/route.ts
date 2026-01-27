@@ -61,16 +61,20 @@ export async function POST(request: NextRequest) {
 
     // Add watermark
     try {
+      // Create a simple text-based watermark without relying on system fonts
+      const watermarkSvg = `
+        <svg width="300" height="50" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="50" fill="transparent"/>
+          <text x="150" y="30" font-size="20" fill="rgba(255,255,255,0.6)" text-anchor="middle" font-weight="bold">
+            © TrungTT
+          </text>
+        </svg>
+      `;
+      
       processedBuffer = await sharp(originalBuffer)
         .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
         .composite([{
-          input: Buffer.from(`
-            <svg width="300" height="50" xmlns="http://www.w3.org/2000/svg">
-              <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" font-style="italic" fill="rgba(255,255,255,0.6)" text-anchor="middle" dominant-baseline="middle">
-                © TrungTT
-              </text>
-            </svg>
-          `),
+          input: Buffer.from(watermarkSvg),
           gravity: 'southeast',
         }])
         .jpeg({ quality: 90 })
