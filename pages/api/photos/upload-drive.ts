@@ -76,7 +76,7 @@ export default async function handler(
       .composite([{
         input: Buffer.from(`
           <svg width="300" height="50" xmlns="http://www.w3.org/2000/svg">
-            <text x="50%" y="50%" font-family="Brush Script MT, cursive" font-size="24" fill="rgba(255,255,255,0.6)" text-anchor="middle" dominant-baseline="middle">
+            <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" font-style="italic" fill="rgba(255,255,255,0.6)" text-anchor="middle" dominant-baseline="middle">
               © TrungTT
             </text>
           </svg>

@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import prisma from '@/lib/prisma';
+import sharp from 'sharp';
 
 // Configure Google Drive API
 const auth = new google.auth.GoogleAuth({
@@ -55,7 +56,28 @@ export async function POST(request: NextRequest) {
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    let buffer = Buffer.from(bytes);
+
+    // Add watermark
+    try {
+      buffer = await sharp(buffer)
+        .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
+        .composite([{
+          input: Buffer.from(`
+            <svg width="300" height="50" xmlns="http://www.w3.org/2000/svg">
+              <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" font-style="italic" fill="rgba(255,255,255,0.6)" text-anchor="middle" dominant-baseline="middle">
+                © TrungTT
+              </text>
+            </svg>
+          `),
+          gravity: 'southeast',
+        }])
+        .jpeg({ quality: 90 })
+        .toBuffer();
+    } catch (error) {
+      console.error('Watermark failed:', error);
+      // Continue with original buffer if watermark fails
+    }
 
     // Generate unique photo ID
     const photoId = `photo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -67,7 +89,7 @@ export async function POST(request: NextRequest) {
         parents: [process.env.GOOGLE_DRIVE_FOLDER_ID!],
       },
       media: {
-        mimeType: file.type,
+        mimeType: 'image/jpeg',
         body: buffer,
       },
     });
