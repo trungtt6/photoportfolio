@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   description: 'Stunning photography portfolio showcasing landscape, nature, and architectural photos. Available prints and digital licenses.',
   keywords: 'photography, portfolio, fine art prints, photo licensing, professional photographer',
   authors: [{ name: 'Professional Photographer' }],
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     type: 'website',
     url: 'https://yoursite.com',
