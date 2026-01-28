@@ -37,6 +37,15 @@ export default async function handler(
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    // Check file size only on Vercel
+    const isVercel = req.headers.host?.includes('vercel.app');
+    if (isVercel && file.size > 4 * 1024 * 1024) {
+      return res.status(413).json({
+        error: 'FILE_TOO_LARGE',
+        message: `File is ${(file.size / 1024 / 1024).toFixed(2)}MB. Vercel limits uploads to 4MB.`,
+      });
+    }
+
     // Read file buffer
     const fileBuffer = require('fs').readFileSync(file.filepath);
 
@@ -49,7 +58,7 @@ export default async function handler(
     const baseFileName = `${photoId}.${fileExtension}`;
 
     // Upload original file
-    const originalUpload = await uploadFile(
+    await uploadFile(
       fileBuffer,
       baseFileName,
       file.mimetype || 'image/jpeg',
@@ -62,16 +71,20 @@ export default async function handler(
     );
 
     // Process image - create watermarked version
+    // Create a simple text-based watermark without relying on system fonts
+    const watermarkSvg = `
+      <svg width="300" height="50" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="50" fill="transparent"/>
+        <text x="150" y="30" font-size="20" fill="rgba(255,255,255,0.6)" text-anchor="middle" font-weight="bold">
+          © TrungTT
+        </text>
+      </svg>
+    `;
+    
     const watermarkBuffer = await sharp(fileBuffer)
       .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
       .composite([{
-        input: Buffer.from(`
-          <svg width="300" height="50" xmlns="http://www.w3.org/2000/svg">
-            <text x="50%" y="50%" font-family="Brush Script MT, cursive" font-size="24" fill="rgba(255,255,255,0.5)" text-anchor="middle" dominant-baseline="middle">
-              TrungTT
-            </text>
-          </svg>
-        `),
+        input: Buffer.from(watermarkSvg),
         gravity: 'southeast',
       }])
       .jpeg({ quality: 90 })
@@ -99,7 +112,7 @@ export default async function handler(
 
     // Upload thumbnail
     const thumbnailFileName = `${photoId}_thumb.jpg`;
-    const thumbnailUpload = await uploadFile(
+    await uploadFile(
       thumbnailBuffer,
       thumbnailFileName,
       'image/jpeg',
@@ -119,15 +132,13 @@ export default async function handler(
       data: {
         photoId,
         filename: file.originalFilename || '',
+        storagePath: `https://lh3.googleusercontent.com/d/${processedUpload.fileId}`,
         title,
         description,
         category,
         tags: Array.isArray(tags) ? tags : [tags],
         featured,
-        googleDriveId: processedUpload.fileId,
-        googleDriveUrl: `https://drive.usercontent.google.com/download?id=${processedUpload.fileId}`,
-        originalDriveId: originalUpload.fileId,
-        thumbnailDriveId: thumbnailUpload.fileId,
+        visible: true,
         width: metadata.width || 1920,
         height: metadata.height || 1080,
         originalSizeMB: file.size ? file.size / (1024 * 1024) : 0,
@@ -143,9 +154,19 @@ export default async function handler(
       photo: {
         id: photo.id,
         photoId: photo.photoId,
+        filename: photo.filename,
         title: photo.title,
-        url: photo.googleDriveUrl,
-        thumbnailUrl: `https://drive.google.com/uc?id=${thumbnailUpload.fileId}`,
+        description: photo.description,
+        category: photo.category,
+        tags: photo.tags,
+        featured: photo.featured,
+        width: photo.width,
+        height: photo.height,
+        price: photo.price,
+        licensingAvailable: photo.licensingAvailable,
+        storagePath: photo.storagePath,
+        originalSizeMB: photo.originalSizeMB,
+        processedSizeMB: photo.processedSizeMB,
       },
     });
   } catch (error) {

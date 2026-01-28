@@ -6,6 +6,7 @@ export interface Photo {
   description: string;
   imageUrl: string;
   thumbnailUrl: string;
+  storagePath?: string;
   category: PhotoCategory;
   tags: string[];
   date: string;

@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
       id: photo.photoId,
       title: photo.title,
       description: photo.description || '',
-      imageUrl: `/api/image/${photo.photoId}`,
-      thumbnailUrl: `/api/image/${photo.photoId}?size=thumb`,
+      imageUrl: photo.storagePath || `/api/storage/processed/${photo.photoId}.jpg`,
+      thumbnailUrl: photo.storagePath || `/api/storage/references/${photo.photoId}/thumb.jpg`,
       category: photo.category as any,
       tags: photo.tags,
       date: photo.dateTaken?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
@@ -41,6 +41,8 @@ export async function GET(request: NextRequest) {
       featured: photo.featured,
       price: photo.price,
       licensingAvailable: photo.licensingAvailable,
+      storagePath: photo.storagePath,
+      filename: photo.filename,
     }));
 
     return NextResponse.json(formattedPhotos);

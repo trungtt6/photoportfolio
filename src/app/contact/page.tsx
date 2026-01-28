@@ -19,15 +19,15 @@ export default function ContactPage() {
             <div className="space-y-8">
               <div>
                 <h3 className="text-lg font-semibold text-white mb-3">📧 Email</h3>
-                <a href="mailto:contact@example.com" className="text-blue-400 hover:text-blue-300">
-                  contact@yourportfolio.com
+                <a href="mailto: trungtt@gmail.com" className="text-blue-400 hover:text-blue-300">
+                  trungtt@gmail.com
                 </a>
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold text-white mb-3">📱 Phone</h3>
-                <a href="tel:+1234567890" className="text-blue-400 hover:text-blue-300">
-                  +1 (555) 123-4567
+                <a href="https://wa.me/6594755969" className="text-blue-400 hover:text-blue-300">
+                  +65 9475 5969
                 </a>
               </div>
 
@@ -37,10 +37,10 @@ export default function ContactPage() {
                   <a href="#" className="block text-blue-400 hover:text-blue-300">
                     Instagram
                   </a>
-                  <a href="#" className="block text-blue-400 hover:text-blue-300">
+                  <a href="https://www.facebook.com/share/1EDxDMm3fh/"  className="block text-blue-400 hover:text-blue-300">
                     Facebook
                   </a>
-                  <a href="#" className="block text-blue-400 hover:text-blue-300">
+                  <a href="https://500px.com/leicamen?type=award" className="block text-blue-400 hover:text-blue-300">
                     500px
                   </a>
                 </div>
@@ -48,7 +48,7 @@ export default function ContactPage() {
 
               <div>
                 <h3 className="text-lg font-semibold text-white mb-3">📍 Location</h3>
-                <p className="text-gray-400">Your City, Country</p>
+                <p className="text-gray-400">Singapore, Singapore</p>
               </div>
 
               <div className="bg-gray-800 rounded-lg p-6">

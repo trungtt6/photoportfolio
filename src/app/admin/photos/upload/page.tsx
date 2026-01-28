@@ -51,6 +51,16 @@ export default function UploadPhotoPage() {
       return;
     }
 
+    // Check file size only on Vercel (not localhost)
+    const isVercel = window.location.hostname.includes('vercel.app');
+    if (isVercel) {
+      const maxSize = 4 * 1024 * 1024; // 4MB
+      if (file.size > maxSize) {
+        setMessage(`⚠️ File is ${(file.size / 1024 / 1024).toFixed(2)}MB. Vercel limits uploads to 4MB. Please compress your image first.`);
+        return;
+      }
+    }
+
     setLoading(true);
     setUploadProgress(0);
     setCurrentStep('Initializing upload...');
@@ -97,7 +107,11 @@ export default function UploadPhotoPage() {
         }, 2000);
       } else {
         const error = await response.json();
-        setMessage(`❌ Upload failed: ${error.message || 'Unknown error'}`);
+        if (error.error === 'FILE_TOO_LARGE') {
+          setMessage(`⚠️ ${error.message}`);
+        } else {
+          setMessage(`❌ Upload failed: ${error.message || 'Unknown error'}`);
+        }
       }
     } catch (err) {
       setMessage(`❌ Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -164,7 +178,7 @@ export default function UploadPhotoPage() {
                   ) : (
                     <div>
                       <p className="text-gray-400 mb-2">Click to upload or drag and drop</p>
-                      <p className="text-gray-500 text-sm">JPG, PNG, WebP up to 50MB</p>
+                      <p className="text-gray-500 text-sm">JPG, PNG, WebP {typeof window !== 'undefined' && window.location.hostname.includes('vercel.app') ? '(max 4MB)' : '(any size)'}</p>
                     </div>
                   )}
                 </label>
