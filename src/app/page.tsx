@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import HeroSlider from '@/components/HeroSlider';
+import Testimonials from '@/components/Testimonials';
 import prisma from '@/lib/prisma';
 import { Photo } from '@/types';
 
@@ -17,8 +18,8 @@ export default async function Home() {
       id: p.photoId,
       title: p.title,
       description: p.description || '',
-      imageUrl: `/storage/processed/${p.photoId}.jpg`,
-      thumbnailUrl: `/storage/references/${p.photoId}/thumb.jpg`,
+      imageUrl: `/api/image/${p.photoId}`,
+      thumbnailUrl: `/api/image/${p.photoId}?size=thumb`,
       category: p.category || 'landscape',
       tags: p.tags || [],
       date: p.uploadedAt?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
@@ -32,12 +33,12 @@ export default async function Home() {
     console.warn('Could not load photos from database');
   }
 
-  const featuredPhotos = photos.filter((photo) => photo.featured).slice(0, 3);
+  const featuredPhotos = photos.filter((photo) => photo.featured);
 
   return (
     <div className="bg-gray-950">
       {/* Hero Slider */}
-      <HeroSlider photos={photos} />
+      <HeroSlider photos={featuredPhotos} />
 
       {/* Featured Photos Section */}
       <section className="py-24 bg-gray-950">
@@ -132,6 +133,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <Testimonials />
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 relative overflow-hidden">

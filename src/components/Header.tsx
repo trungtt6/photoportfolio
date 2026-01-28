@@ -23,6 +23,9 @@ export default function Header() {
           <Link href="/gallery" className="hover:text-gray-300 transition">
             Gallery
           </Link>
+          <Link href="/blog" className="hover:text-gray-300 transition">
+            Blog
+          </Link>
           <Link href="/about" className="hover:text-gray-300 transition">
             About
           </Link>
@@ -63,6 +66,13 @@ export default function Header() {
             onClick={() => setIsMenuOpen(false)}
           >
             Gallery
+          </Link>
+          <Link
+            href="/blog"
+            className="block py-2 hover:text-gray-300 transition"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Blog
           </Link>
           <Link
             href="/about"

@@ -67,8 +67,8 @@ export default async function handler(
       .composite([{
         input: Buffer.from(`
           <svg width="300" height="50" xmlns="http://www.w3.org/2000/svg">
-            <text x="50%" y="50%" font-family="Arial" font-size="20" fill="rgba(255,255,255,0.5)" text-anchor="middle" dominant-baseline="middle">
-              © Your Photography
+            <text x="50%" y="50%" font-family="Brush Script MT, cursive" font-size="24" fill="rgba(255,255,255,0.5)" text-anchor="middle" dominant-baseline="middle">
+              TrungTT
             </text>
           </svg>
         `),
@@ -125,7 +125,7 @@ export default async function handler(
         tags: Array.isArray(tags) ? tags : [tags],
         featured,
         googleDriveId: processedUpload.fileId,
-        googleDriveUrl: `https://drive.google.com/uc?id=${processedUpload.fileId}`,
+        googleDriveUrl: `https://drive.usercontent.google.com/download?id=${processedUpload.fileId}`,
         originalDriveId: originalUpload.fileId,
         thumbnailDriveId: thumbnailUpload.fileId,
         width: metadata.width || 1920,

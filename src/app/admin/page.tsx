@@ -73,7 +73,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Links */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Link href="/admin/photos/manage">
             <div className="bg-gray-900 border border-gray-800 hover:border-blue-500 rounded-lg p-6 transition cursor-pointer">
               <div className="text-3xl mb-3">📸</div>
@@ -85,8 +85,16 @@ export default function AdminDashboard() {
           <Link href="/admin/photos/upload">
             <div className="bg-gray-900 border border-gray-800 hover:border-blue-500 rounded-lg p-6 transition cursor-pointer">
               <div className="text-3xl mb-3">⬆️</div>
-              <h3 className="text-xl font-bold text-white mb-2">Upload Photos</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Upload Photo</h3>
               <p className="text-gray-400 text-sm">Upload and process new photos with watermark</p>
+            </div>
+          </Link>
+
+          <Link href="/admin/photos/batch-upload">
+            <div className="bg-gray-900 border border-gray-800 hover:border-blue-500 rounded-lg p-6 transition cursor-pointer">
+              <div className="text-3xl mb-3">📁</div>
+              <h3 className="text-xl font-bold text-white mb-2">Batch Upload</h3>
+              <p className="text-gray-400 text-sm">Upload multiple photos at once</p>
             </div>
           </Link>
 

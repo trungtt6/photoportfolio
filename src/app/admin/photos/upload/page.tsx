@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import UploadProgress from '@/components/admin/UploadProgress';
 
 export default function UploadPhotoPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -12,12 +13,35 @@ export default function UploadPhotoPage() {
   const [featured, setFeatured] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState('');
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       setFile(e.target.files[0]);
     }
   };
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile && droppedFile.type.startsWith('image/')) {
+      setFile(droppedFile);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +52,20 @@ export default function UploadPhotoPage() {
     }
 
     setLoading(true);
+    setUploadProgress(0);
+    setCurrentStep('Initializing upload...');
+    
+    // Simulate progress
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 95) {
+          clearInterval(progressInterval);
+          return 95;
+        }
+        return prev + 5;
+      });
+    }, 500);
+    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title);
@@ -43,6 +81,8 @@ export default function UploadPhotoPage() {
       });
 
       if (response.ok) {
+        setUploadProgress(100);
+        setCurrentStep('Upload complete!');
         setMessage('✅ Photo uploaded successfully!');
         setFile(null);
         setTitle('');
@@ -96,7 +136,16 @@ export default function UploadPhotoPage() {
               <label className="block text-sm font-semibold text-gray-400 mb-2">
                 Photo File *
               </label>
-              <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center hover:border-blue-500 transition cursor-pointer">
+              <div 
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition cursor-pointer ${
+                  isDragOver 
+                    ? 'border-blue-500 bg-blue-500/10' 
+                    : 'border-gray-700 hover:border-blue-500'
+                }`}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+              >
                 <input
                   type="file"
                   accept="image/jpeg,image/jpg,image/png,image/webp"
@@ -218,6 +267,13 @@ export default function UploadPhotoPage() {
           </form>
         </div>
       </div>
+      
+      {/* Upload Progress Modal */}
+      <UploadProgress 
+        isUploading={loading}
+        progress={uploadProgress}
+        fileName={file?.name || ''}
+      />
     </div>
   );
 }

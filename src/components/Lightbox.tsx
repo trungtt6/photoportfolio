@@ -70,7 +70,7 @@ export default function Lightbox({ photo, isOpen, onClose }: LightboxProps) {
             height={photo.height}
             className="max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] object-contain"
             priority
-            onLoadingComplete={() => setIsLoading(false)}
+            onLoad={() => setIsLoading(false)}
           />
         </div>
 
