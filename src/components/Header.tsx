@@ -12,7 +12,7 @@ export default function Header() {
       <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="text-2xl font-bold tracking-wider hover:text-gray-300 transition">
-          PHOTO
+          Trungtt Photography
         </Link>
 
         {/* Desktop Navigation */}
