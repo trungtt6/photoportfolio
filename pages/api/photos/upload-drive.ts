@@ -73,15 +73,21 @@ export default async function handler(
     // Process image - create watermarked version
     // Create a simple text-based watermark without relying on system fonts
     const watermarkSvg = `
-      <svg width="300" height="50" xmlns="http://www.w3.org/2000/svg">
-        <rect width="300" height="50" fill="transparent"/>
-        <text x="150" y="30" font-size="20" fill="rgba(255,255,255,0.6)" text-anchor="middle" font-weight="bold">
+      <svg width="400" height="60" xmlns="http://www.w3.org/2000/svg">
+        <rect width="400" height="60" fill="transparent"/>
+        <text x="200" y="40" 
+              font-family="Arial, Helvetica, sans-serif" 
+              font-size="28" 
+              font-weight="bold"
+              fill="rgba(255,255,255,0.7)" 
+              text-anchor="middle">
           © TrungTT
         </text>
       </svg>
     `;
     
-    const watermarkBuffer = await sharp(fileBuffer)
+    // Configure sharp to avoid font issues
+    const watermarkBuffer = await sharp(fileBuffer, { failOnError: false })
       .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
       .composite([{
         input: Buffer.from(watermarkSvg),
@@ -105,10 +111,16 @@ export default async function handler(
     );
 
     // Create thumbnail
-    const thumbnailBuffer = await sharp(fileBuffer)
-      .resize(400, 300, { fit: 'cover' })
-      .jpeg({ quality: 80 })
-      .toBuffer();
+    let thumbnailBuffer;
+    try {
+      thumbnailBuffer = await sharp(fileBuffer, { failOnError: false })
+        .resize(400, 300, { fit: 'cover' })
+        .jpeg({ quality: 80 })
+        .toBuffer();
+    } catch (error) {
+      console.error('Error creating thumbnail:', error);
+      throw new Error('Failed to process image thumbnail');
+    }
 
     // Upload thumbnail
     const thumbnailFileName = `${photoId}_thumb.jpg`;
@@ -125,7 +137,13 @@ export default async function handler(
     );
 
     // Get image dimensions
-    const metadata = await sharp(fileBuffer).metadata();
+    let metadata;
+    try {
+      metadata = await sharp(fileBuffer, { failOnError: false }).metadata();
+    } catch (error) {
+      console.warn('Warning: Could not read image metadata:', error);
+      metadata = { width: 1920, height: 1080 };
+    }
 
     // Save to database
     const photo = await prisma.photo.create({
