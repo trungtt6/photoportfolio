@@ -5,6 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 import sharp from 'sharp';
 import formidable from 'formidable';
 
+// Suppress Fontconfig warning
+process.env.SHARP_IGNORE_GLOBAL_LIBVIPS = '1';
+
 const prisma = new PrismaClient();
 
 export const config = {
@@ -71,23 +74,24 @@ export default async function handler(
     );
 
     // Process image - create watermarked version
-    // Create a simple text-based watermark without relying on system fonts
+    // Create a simple graphic watermark without text to avoid font issues
     const watermarkSvg = `
-      <svg width="400" height="60" xmlns="http://www.w3.org/2000/svg">
-        <rect width="400" height="60" fill="transparent"/>
-        <text x="200" y="40" 
-              font-family="Arial, Helvetica, sans-serif" 
-              font-size="28" 
-              font-weight="bold"
-              fill="rgba(255,255,255,0.7)" 
-              text-anchor="middle">
-          © TrungTT
+      <svg width="200" height="50" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="190" height="40" rx="5" 
+              fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+        <circle cx="30" cy="25" r="8" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
+        <path d="M 30 17 L 30 25 L 36 31" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round"/>
+        <text x="50" y="30" 
+              font-size="14" 
+              fill="rgba(255,255,255,0.9)" 
+              font-weight="bold">
+          TRUNGTT
         </text>
       </svg>
     `;
     
-    // Configure sharp to avoid font issues
-    const watermarkBuffer = await sharp(fileBuffer, { failOnError: false })
+    // Create watermark buffer
+    const watermarkBuffer = await sharp(fileBuffer)
       .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
       .composite([{
         input: Buffer.from(watermarkSvg),
