@@ -1,8 +1,11 @@
 'use client';
+import StructuredData from "./StructuredData";
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Photo } from '@/types';
+import { useCart } from '@/contexts/CartContext';
+import { LICENSE_TIERS } from '@/lib/photos';
 
 interface LightboxProps {
   photo: Photo;
@@ -12,6 +15,9 @@ interface LightboxProps {
 
 export default function Lightbox({ photo, isOpen, onClose }: LightboxProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedLicense, setSelectedLicense] = useState(LICENSE_TIERS[0]);
+  const [isAdded, setIsAdded] = useState(false);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -21,6 +27,7 @@ export default function Lightbox({ photo, isOpen, onClose }: LightboxProps) {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleEscape);
+      setIsAdded(false); // Reset added state when opened
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -30,6 +37,12 @@ export default function Lightbox({ photo, isOpen, onClose }: LightboxProps) {
       window.removeEventListener('keydown', handleEscape);
     };
   }, [isOpen, onClose]);
+
+  const handleAddToCart = () => {
+    addToCart(photo, selectedLicense.name, photo.price + selectedLicense.price);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
 
   if (!isOpen) return null;
 
@@ -68,65 +81,65 @@ export default function Lightbox({ photo, isOpen, onClose }: LightboxProps) {
             alt={photo.title}
             width={photo.width}
             height={photo.height}
-            className="max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] object-contain"
+            className="max-w-[calc(100vw-2rem)] max-h-[calc(100vh-16rem)] object-contain"
             priority
             onLoad={() => setIsLoading(false)}
           />
         </div>
 
         {/* Photo Info Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-          <div className="text-white">
-            <h2 className="text-2xl font-bold mb-2">{photo.title}</h2>
-            <p className="text-gray-200 mb-4">{photo.description}</p>
-            
-            <div className="flex flex-wrap gap-4 text-sm">
-              <div>
-                <span className="text-gray-400">Category:</span>
-                <span className="ml-2 text-white">{photo.category}</span>
-              </div>
-              <div>
-                <span className="text-gray-400">Size:</span>
-                <span className="ml-2 text-white">{photo.width} × {photo.height}px</span>
-              </div>
-              <div>
-                <span className="text-gray-400">Date:</span>
-                <span className="ml-2 text-white">{photo.date}</span>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 to-black/70 p-6 max-h-[40vh] overflow-y-auto">
+          <div className="text-white max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
+            <div className="flex-1">
+              <StructuredData photo={photo} />
+              <h2 className="text-2xl font-bold mb-2">{photo.title}</h2>
+              <p className="text-gray-200 mb-4">{photo.description}</p>
+
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div>
+                  <span className="text-gray-400">Category:</span>
+                  <span className="ml-2 text-white">{photo.category}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400">Size:</span>
+                  <span className="ml-2 text-white">{photo.width} × {photo.height}px</span>
+                </div>
               </div>
             </div>
 
-            {/* Tags */}
-            {photo.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {photo.tags.map((tag, index) => (
-                  <span 
-                    key={index}
-                    className="px-3 py-1 bg-blue-600/30 text-blue-300 rounded-full text-xs"
+            {/* E-commerce Actions */}
+            {photo.licensingAvailable && (
+              <div className="flex-1 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+                <h3 className="font-bold text-lg mb-3">Purchase License</h3>
+                <select
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded p-2 mb-4 focus:ring-blue-500 focus:border-blue-500"
+                  value={selectedLicense.id}
+                  onChange={(e) => setSelectedLicense(LICENSE_TIERS.find(t => t.id === e.target.value) || LICENSE_TIERS[0])}
+                >
+                  {LICENSE_TIERS.map(tier => (
+                    <option key={tier.id} value={tier.id}>
+                      {tier.name} (+${tier.price})
+                    </option>
+                  ))}
+                </select>
+
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold text-blue-400">
+                    ${(photo.price + selectedLicense.price).toFixed(2)}
+                  </div>
+                  <button
+                    onClick={handleAddToCart}
+                    className={`px-6 py-2 rounded-lg font-bold transition-all ${
+                      isAdded ? 'bg-green-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
                   >
-                    #{tag}
-                  </span>
-                ))}
+                    {isAdded ? '✓ Added' : 'Add to Cart'}
+                  </button>
+                </div>
               </div>
             )}
-
-            {/* Pricing and Licensing */}
-            <div className="flex items-center gap-6 mt-6">
-              <div className="text-xl font-bold text-blue-400">
-                From ${photo.price}
-              </div>
-              {photo.licensingAvailable && (
-                <span className="text-xs bg-green-600/30 text-green-400 px-3 py-1 rounded-full">
-                  License Available
-                </span>
-              )}
-            </div>
           </div>
         </div>
-      </div>
-
-      {/* Navigation Hints */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-sm">
-        Press ESC to close • Click outside to close
       </div>
     </div>
   );

@@ -16,20 +16,48 @@ test.describe('Photo Portfolio UI/UX', () => {
     await expect(page.locator('header nav a', { hasText: /^Contact$/ })).toBeVisible();
   });
 
-  test('gallery page renders and displays photos or empty state', async ({ page }) => {
+  test('gallery page renders, handles empty state, and supports Add to Cart', async ({ page }) => {
     await page.goto('http://localhost:3000/gallery');
 
     // Ensure "All Photos" filter exists
     await expect(page.locator('button:has-text("All Photos")')).toBeVisible();
 
-    // Should have a search input
+    // Check search input
     await expect(page.locator('input[placeholder="Search photos..."]')).toBeVisible();
 
-    // The photos are loaded dynamically over API. Wait for either an image to appear or the "No photos found" message
     const hasImage = page.locator('img').first();
     const hasEmptyState = page.locator('text=No photos found matching your criteria').first();
 
+    // Wait for either photo grid or empty state
     await expect(hasImage.or(hasEmptyState)).toBeVisible({ timeout: 10000 });
+
+    // If photos are present, test the Lightbox and Add to Cart feature
+    if (await hasImage.isVisible()) {
+      await hasImage.click(); // Open lightbox
+
+      // Wait for lightbox to appear
+      const addToCartButton = page.locator('button:has-text("Add to Cart")').first();
+      // Ensure the e-commerce purchase section is visible
+      await expect(addToCartButton).toBeVisible({ timeout: 5000 });
+
+      // Click Add to cart
+      await addToCartButton.click();
+      await expect(page.locator('button:has-text("✓ Added")')).toBeVisible();
+
+      // Close lightbox (using ESC key)
+      await page.keyboard.press('Escape');
+
+      // Check header cart count
+      await expect(page.locator('header text=🛒 Cart1').or(page.locator('header text=🛒1'))).toBeVisible();
+
+      // Navigate to checkout
+      await page.goto('http://localhost:3000/checkout');
+      await expect(page.locator('text=Order Summary')).toBeVisible();
+
+      const proceedButton = page.locator('button:has-text("Proceed to Checkout")');
+      await proceedButton.click();
+      await expect(page.locator('text=Payment Successful!')).toBeVisible({ timeout: 5000 });
+    }
   });
 
   test('contact page form interaction', async ({ page }) => {

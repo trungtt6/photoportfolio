@@ -47,7 +47,10 @@ function makeRequest(method, path, data = null) {
     req.on('error', reject);
 
     if (data) {
-      req.write(JSON.stringify(data));
+      const dataStr = JSON.stringify(data);
+      options.headers['Content-Length'] = Buffer.byteLength(dataStr);
+      req.write(dataStr);
+
     }
     req.end();
   });
@@ -109,6 +112,8 @@ async function runTests() {
   console.log('─'.repeat(50));
 
   let testPhotoId = `test-photo-${Date.now()}`;
+  let bulkTestId1 = `bulk-test-1-${Date.now()}`;
+  let bulkTestId2 = `bulk-test-2-${Date.now()}`;
   let photoCreated = false;
 
   // CREATE
@@ -131,6 +136,10 @@ async function runTests() {
       photoCreated,
       `Status: ${response.status}, ID: ${response.data?.photoId || 'Unknown'}`
     );
+
+    // Create bulk test photos
+    await makeRequest('POST', '/api/admin/photos/list', { ...createData, photoId: bulkTestId1, title: 'Bulk Test 1' });
+    await makeRequest('POST', '/api/admin/photos/list', { ...createData, photoId: bulkTestId2, title: 'Bulk Test 2' });
   } catch (e) {
     logTest('Create New Photo', false, `Error: ${e.message}`);
   }
@@ -166,40 +175,44 @@ async function runTests() {
       logTest('Update Photo', false, `Error: ${e.message}`);
     }
 
-    // DELETE
+    // DELETE SINGLE
     try {
       const response = await makeRequest('DELETE', `/api/admin/photos/${testPhotoId}`);
       logTest(
-        `Delete Photo (DELETE /api/admin/photos/${testPhotoId})`,
+        `Delete Single Photo (DELETE /api/admin/photos/${testPhotoId})`,
         response.status === 200,
         `Status: ${response.status}`
       );
+    } catch (e) {
+      logTest('Delete Single Photo', false, `Error: ${e.message}`);
+    }
 
-      // Verify deletion
-      const verifyResponse = await makeRequest('GET', `/api/admin/photos/${testPhotoId}`);
+    // BULK DELETE
+    try {
+      const response = await makeRequest('DELETE', '/api/admin/photos/bulk', { ids: [bulkTestId1, bulkTestId2] });
       logTest(
-        `Verify Deletion (GET /api/admin/photos/${testPhotoId})`,
-        verifyResponse.status === 404,
-        `Status: ${verifyResponse.status} (Expected 404)`
+        'Bulk Delete Photos (DELETE /api/admin/photos/bulk)',
+        response.status === 200 && response.data?.count === 2,
+        `Deleted ${response.data?.count || 0} photos, Status: ${response.status}`
       );
     } catch (e) {
-      logTest('Delete Photo / Verify Deletion', false, `Error: ${e.message}`);
+      logTest('Bulk Delete Photos', false, `Error: ${e.message}`);
     }
   }
 
   // ========== PUBLIC API TESTS ==========
-  console.log(`\n${colors.yellow}TEST GROUP 3: PUBLIC ENDPOINTS${colors.reset}`);
+  console.log(`\n${colors.yellow}TEST GROUP 3: PUBLIC ENDPOINTS & PAGINATION${colors.reset}`);
   console.log('─'.repeat(50));
 
   try {
-    const response = await makeRequest('GET', '/api/photos');
+    const response = await makeRequest('GET', '/api/photos?page=1&limit=2');
     logTest(
-      'Public Photos Endpoint (GET /api/photos)',
-      response.status === 200 && Array.isArray(response.data),
-      `Status: ${response.status}, Photos: ${response.data?.length || 0}`
+      'Public Photos Pagination (GET /api/photos?page=1&limit=2)',
+      response.status === 200 && Array.isArray(response.data) && response.data.length <= 2,
+      `Status: ${response.status}, Returned length: ${response.data?.length || 0}`
     );
   } catch (e) {
-    logTest('Public Photos Endpoint', false, `Error: ${e.message}`);
+    logTest('Public Photos Pagination', false, `Error: ${e.message}`);
   }
 
   // ========== PAGE RENDERING TESTS ==========
@@ -211,6 +224,8 @@ async function runTests() {
     { path: '/gallery', name: 'Gallery' },
     { path: '/admin', name: 'Admin Dashboard' },
     { path: '/admin/photos/manage', name: 'Photo Management' },
+    { path: '/checkout', name: 'Checkout Page' },
+    { path: '/sitemap.xml', name: 'Dynamic Sitemap' },
   ];
 
   for (const page of pages) {

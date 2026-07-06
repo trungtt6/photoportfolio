@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import Header from '@/components/Header';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { CartProvider } from '@/contexts/CartContext';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -10,9 +11,11 @@ jest.mock('next/navigation', () => ({
 describe('Header', () => {
   it('renders logo and navigation links', () => {
     render(
-      <ThemeProvider>
-        <Header />
-      </ThemeProvider>
+      <CartProvider>
+        <ThemeProvider>
+          <Header />
+        </ThemeProvider>
+      </CartProvider>
     );
     expect(screen.getByText('Trungtt Photography')).toBeInTheDocument();
     expect(screen.getByText('Home')).toBeInTheDocument();

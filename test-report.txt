@@ -14,65 +14,73 @@ TEST GROUP 1: DATABASE CONNECTIVITY
 TEST GROUP 2: FULL PHOTO CRUD (Create, Read, Update, Delete)
 ──────────────────────────────────────────────────
 ✅ Create New Photo (POST /api/admin/photos/list)
-   Status: 201, ID: test-photo-1783314080491
-✅ Read Created Photo (GET /api/admin/photos/test-photo-1783314080491)
-   Title: Integration Test Photo 1783314080491
-✅ Update Photo (PUT /api/admin/photos/test-photo-1783314080491)
-   New title: "Integration Test Photo 1783314080491 - UPDATED", Status: 200
-✅ Delete Photo (DELETE /api/admin/photos/test-photo-1783314080491)
+   Status: 201, ID: test-photo-1783321042246
+✅ Read Created Photo (GET /api/admin/photos/test-photo-1783321042246)
+   Title: Integration Test Photo 1783321042246
+✅ Update Photo (PUT /api/admin/photos/test-photo-1783321042246)
+   New title: "Integration Test Photo 1783321042246 - UPDATED", Status: 200
+✅ Delete Single Photo (DELETE /api/admin/photos/test-photo-1783321042246)
    Status: 200
-✅ Verify Deletion (GET /api/admin/photos/test-photo-1783314080491)
-   Status: 404 (Expected 404)
+❌ Bulk Delete Photos (DELETE /api/admin/photos/bulk)
+   Deleted 0 photos, Status: 400
 
-TEST GROUP 3: PUBLIC ENDPOINTS
+TEST GROUP 3: PUBLIC ENDPOINTS & PAGINATION
 ──────────────────────────────────────────────────
-✅ Public Photos Endpoint (GET /api/photos)
-   Status: 200, Photos: 12
+✅ Public Photos Pagination (GET /api/photos?page=1&limit=2)
+   Status: 200, Returned length: 2
 
 TEST GROUP 4: PAGE RENDERING
 ──────────────────────────────────────────────────
 ✅ Render Homepage (/)
-   Status: 200, Content size: 119537 bytes
+   Status: 200, Content size: 120011 bytes
 ✅ Render Gallery (/gallery)
-   Status: 200, Content size: 33909 bytes
+   Status: 200, Content size: 34336 bytes
 ✅ Render Admin Dashboard (/admin)
-   Status: 200, Content size: 33595 bytes
+   Status: 200, Content size: 34023 bytes
 ✅ Render Photo Management (/admin/photos/manage)
-   Status: 200, Content size: 34078 bytes
+   Status: 200, Content size: 34505 bytes
+✅ Render Checkout Page (/checkout)
+   Status: 200, Content size: 32106 bytes
+✅ Render Dynamic Sitemap (/sitemap.xml)
+   Status: 200, Content size: 4110 bytes
 
 ╔════════════════════════════════════════════════════════╗
 ║  TEST SUMMARY                                      ║
 ╚════════════════════════════════════════════════════════╝
 
-✅ PASSED: 11
-❌ FAILED: 0
-📊 PASS RATE: 100.0%
+✅ PASSED: 12
+❌ FAILED: 1
+📊 PASS RATE: 92.3%
 
 DETAILED RESULTS:
 ──────────────────────────────────────────────────
 ✅ Database Connection Test
    Status: 200, Connected: undefined
 ✅ Create New Photo (POST /api/admin/photos/list)
-   Status: 201, ID: test-photo-1783314080491
-✅ Read Created Photo (GET /api/admin/photos/test-photo-1783314080491)
-   Title: Integration Test Photo 1783314080491
-✅ Update Photo (PUT /api/admin/photos/test-photo-1783314080491)
-   New title: "Integration Test Photo 1783314080491 - UPDATED", Status: 200
-✅ Delete Photo (DELETE /api/admin/photos/test-photo-1783314080491)
+   Status: 201, ID: test-photo-1783321042246
+✅ Read Created Photo (GET /api/admin/photos/test-photo-1783321042246)
+   Title: Integration Test Photo 1783321042246
+✅ Update Photo (PUT /api/admin/photos/test-photo-1783321042246)
+   New title: "Integration Test Photo 1783321042246 - UPDATED", Status: 200
+✅ Delete Single Photo (DELETE /api/admin/photos/test-photo-1783321042246)
    Status: 200
-✅ Verify Deletion (GET /api/admin/photos/test-photo-1783314080491)
-   Status: 404 (Expected 404)
-✅ Public Photos Endpoint (GET /api/photos)
-   Status: 200, Photos: 12
+❌ Bulk Delete Photos (DELETE /api/admin/photos/bulk)
+   Deleted 0 photos, Status: 400
+✅ Public Photos Pagination (GET /api/photos?page=1&limit=2)
+   Status: 200, Returned length: 2
 ✅ Render Homepage (/)
-   Status: 200, Content size: 119537 bytes
+   Status: 200, Content size: 120011 bytes
 ✅ Render Gallery (/gallery)
-   Status: 200, Content size: 33909 bytes
+   Status: 200, Content size: 34336 bytes
 ✅ Render Admin Dashboard (/admin)
-   Status: 200, Content size: 33595 bytes
+   Status: 200, Content size: 34023 bytes
 ✅ Render Photo Management (/admin/photos/manage)
-   Status: 200, Content size: 34078 bytes
+   Status: 200, Content size: 34505 bytes
+✅ Render Checkout Page (/checkout)
+   Status: 200, Content size: 32106 bytes
+✅ Render Dynamic Sitemap (/sitemap.xml)
+   Status: 200, Content size: 4110 bytes
 
 ════════════════════════════════════════════════════════
-🎉 ALL TESTS PASSED! System is working correctly.
+⚠️  MOST TESTS PASSED (92.3%) - Minor issues detected
 ════════════════════════════════════════════════════════

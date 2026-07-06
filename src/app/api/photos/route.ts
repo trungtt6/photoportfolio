@@ -1,19 +1,26 @@
-export const revalidate = 60;
-import { NextResponse } from 'next/server';
+
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { readdir } from 'fs/promises';
 import path from 'path';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '12', 10);
+    const skip = (page - 1) * limit;
+
     // First, try to get photos from database
     try {
       const photos = await prisma.photo.findMany({
         where: { visible: true },
         orderBy: { uploadedAt: 'desc' },
+        skip,
+        take: limit,
       });
 
-      if (photos.length > 0) {
+      if (photos.length > 0 || page > 1) { // Return empty array if on page > 1 instead of falling back to FS
         // Map database records to Photo interface
         const formattedPhotos = photos.map(photo => ({
           id: photo.photoId,
@@ -45,9 +52,12 @@ export async function GET() {
       const files = await readdir(processedDir);
       const jpgFiles = files.filter(f => f.endsWith('.jpg') || f.endsWith('.jpeg'));
 
-      const photos = jpgFiles.map((file, index) => ({
+      // Apply pagination to filesystem array
+      const paginatedFiles = jpgFiles.slice(skip, skip + limit);
+
+      const photos = paginatedFiles.map((file, index) => ({
         id: file.replace(/\.(jpg|jpeg)$/i, ''),
-        title: `Photo ${index + 1}`,
+        title: `Photo ${skip + index + 1}`,
         description: 'Professional watermarked photograph',
         imageUrl: `/api/storage/processed/${file}`,
         thumbnailUrl: `/api/storage/references/${file.replace(/\.(jpg|jpeg)$/i, '')}/thumb.jpg`,

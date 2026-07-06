@@ -1,3 +1,4 @@
+import { CartProvider } from "@/contexts/CartContext";
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Header from '@/components/Header';
@@ -58,11 +59,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geist.variable} ${geist_mono.variable} bg-gray-950 text-gray-100 font-sans`}>
         <ThemeProvider>
+          <CartProvider>
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
+        </CartProvider>
         </ThemeProvider>
         <Analytics />
       </body>

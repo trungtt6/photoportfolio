@@ -75,6 +75,45 @@ export default function AdminPhotosPage() {
     }
   };
 
+
+  const togglePhotoSelection = (id: string) => {
+    setSelectedPhotos(prev =>
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  };
+
+  const toggleAllSelections = () => {
+    if (selectedPhotos.length === photos.length) {
+      setSelectedPhotos([]);
+    } else {
+      setSelectedPhotos(photos.map(p => p.id));
+    }
+  };
+
+  const bulkDeletePhotos = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedPhotos.length} photos?`)) return;
+
+    try {
+      const response = await fetch('/api/admin/photos/bulk', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedPhotos }),
+      });
+
+      if (response.ok) {
+        setMessage('Photos deleted successfully!');
+        setPhotos(photos.filter(p => !selectedPhotos.includes(p.id)));
+        setSelectedPhotos([]);
+      } else {
+        setMessage('Failed to delete photos.');
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage('An error occurred during deletion.');
+    }
+  };
+
+
   const deletePhoto = async (id: string) => {
     if (!confirm('Are you sure you want to delete this photo?')) return;
 
@@ -111,6 +150,30 @@ export default function AdminPhotosPage() {
         {message && (
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-6 text-white">
             {message}
+          </div>
+        )}
+
+
+        {photos.length > 0 && (
+          <div className="flex items-center gap-4 mb-6 bg-gray-900 p-4 rounded-lg border border-gray-800">
+            <label className="flex items-center gap-2 text-white cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedPhotos.length === photos.length && photos.length > 0}
+                onChange={toggleAllSelections}
+                className="w-4 h-4 rounded border-gray-600"
+              />
+              <span className="font-semibold">Select All</span>
+            </label>
+
+            {selectedPhotos.length > 0 && (
+              <button
+                onClick={bulkDeletePhotos}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded transition ml-auto"
+              >
+                Delete Selected ({selectedPhotos.length})
+              </button>
+            )}
           </div>
         )}
 
@@ -263,7 +326,13 @@ export default function AdminPhotosPage() {
                   // View Mode
                   <div className="flex gap-6 items-start">
                     {/* Thumbnail */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 flex gap-4 items-start">
+                      <input
+                        type="checkbox"
+                        checked={selectedPhotos.includes(photo.id)}
+                        onChange={() => togglePhotoSelection(photo.id)}
+                        className="w-5 h-5 mt-2 rounded border-gray-600 cursor-pointer"
+                      />
                       <img
                         src={photo.imageUrl || photo.storagePath || `/storage/processed/${photo.id}.jpg`}
                         alt={photo.title}
