@@ -29,7 +29,7 @@ export default function GalleryCard({ photo }: GalleryCardProps) {
             width={photo.width}
             height={photo.height}
             className="w-full h-full object-cover group-hover:scale-110 transition duration-500 cursor-pointer"
-            loading="lazy"
+            loading="lazy" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             placeholder="blur"
             onClick={handleImageClick}
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"

@@ -11,54 +11,40 @@ TEST GROUP 1: DATABASE CONNECTIVITY
 ✅ Database Connection Test
    Status: 200, Connected: undefined
 
-TEST GROUP 2: PHOTO RETRIEVAL
+TEST GROUP 2: FULL PHOTO CRUD (Create, Read, Update, Delete)
 ──────────────────────────────────────────────────
-✅ Fetch All Photos (GET /api/admin/photos/list)
-   Status: 200, Photos: 12
-   Found 12 photos in database
-     • Updated Test Title - 1783310788731 (ID: 85b7513e-9817-44e6-9ce0-8ac29c4f4e56)
-     • sea beach (ID: a57c0edc-5750-4f29-ab93-afbbcfcb4e39)
-     • Red river (ID: e6f31254-4468-458a-88a2-0a6a6baefdf0)
+✅ Create New Photo (POST /api/admin/photos/list)
+   Status: 201, ID: test-photo-1783314080491
+✅ Read Created Photo (GET /api/admin/photos/test-photo-1783314080491)
+   Title: Integration Test Photo 1783314080491
+✅ Update Photo (PUT /api/admin/photos/test-photo-1783314080491)
+   New title: "Integration Test Photo 1783314080491 - UPDATED", Status: 200
+✅ Delete Photo (DELETE /api/admin/photos/test-photo-1783314080491)
+   Status: 200
+✅ Verify Deletion (GET /api/admin/photos/test-photo-1783314080491)
+   Status: 404 (Expected 404)
 
-TEST GROUP 3: PHOTO DETAILS
-──────────────────────────────────────────────────
-✅ Fetch Single Photo (GET /api/admin/photos/85b7513e-9817-44e6-9ce0-8ac29c4f4e56)
-   Photo: Updated Test Title - 1783310788731
-   Photo Details:
-     • Filename: 4k-3840-x-2160-wallpapers-themefoxx (883).jpg
-     • Title: Updated Test Title - 1783310788731
-     • Category: test-update
-     • Featured: false
-     • Processed Size: 0.6307992935180664 MB
-
-TEST GROUP 4: PHOTO MANAGEMENT (UPDATE)
-──────────────────────────────────────────────────
-✅ Update Photo (PUT /api/admin/photos/85b7513e-9817-44e6-9ce0-8ac29c4f4e56)
-   New title: "Updated Test Title - 1783310812541"
-✅ Verify Update Persisted
-   Title verified: true
-
-TEST GROUP 5: PUBLIC ENDPOINTS
+TEST GROUP 3: PUBLIC ENDPOINTS
 ──────────────────────────────────────────────────
 ✅ Public Photos Endpoint (GET /api/photos)
    Status: 200, Photos: 12
 
-TEST GROUP 6: PAGE RENDERING
+TEST GROUP 4: PAGE RENDERING
 ──────────────────────────────────────────────────
 ✅ Render Homepage (/)
    Status: 200, Content size: 119537 bytes
 ✅ Render Gallery (/gallery)
    Status: 200, Content size: 33909 bytes
 ✅ Render Admin Dashboard (/admin)
-   Status: 200, Content size: 33596 bytes
+   Status: 200, Content size: 33595 bytes
 ✅ Render Photo Management (/admin/photos/manage)
-   Status: 200, Content size: 34077 bytes
+   Status: 200, Content size: 34078 bytes
 
 ╔════════════════════════════════════════════════════════╗
 ║  TEST SUMMARY                                      ║
 ╚════════════════════════════════════════════════════════╝
 
-✅ PASSED: 10
+✅ PASSED: 11
 ❌ FAILED: 0
 📊 PASS RATE: 100.0%
 
@@ -66,14 +52,16 @@ DETAILED RESULTS:
 ──────────────────────────────────────────────────
 ✅ Database Connection Test
    Status: 200, Connected: undefined
-✅ Fetch All Photos (GET /api/admin/photos/list)
-   Status: 200, Photos: 12
-✅ Fetch Single Photo (GET /api/admin/photos/85b7513e-9817-44e6-9ce0-8ac29c4f4e56)
-   Photo: Updated Test Title - 1783310788731
-✅ Update Photo (PUT /api/admin/photos/85b7513e-9817-44e6-9ce0-8ac29c4f4e56)
-   New title: "Updated Test Title - 1783310812541"
-✅ Verify Update Persisted
-   Title verified: true
+✅ Create New Photo (POST /api/admin/photos/list)
+   Status: 201, ID: test-photo-1783314080491
+✅ Read Created Photo (GET /api/admin/photos/test-photo-1783314080491)
+   Title: Integration Test Photo 1783314080491
+✅ Update Photo (PUT /api/admin/photos/test-photo-1783314080491)
+   New title: "Integration Test Photo 1783314080491 - UPDATED", Status: 200
+✅ Delete Photo (DELETE /api/admin/photos/test-photo-1783314080491)
+   Status: 200
+✅ Verify Deletion (GET /api/admin/photos/test-photo-1783314080491)
+   Status: 404 (Expected 404)
 ✅ Public Photos Endpoint (GET /api/photos)
    Status: 200, Photos: 12
 ✅ Render Homepage (/)
@@ -81,9 +69,9 @@ DETAILED RESULTS:
 ✅ Render Gallery (/gallery)
    Status: 200, Content size: 33909 bytes
 ✅ Render Admin Dashboard (/admin)
-   Status: 200, Content size: 33596 bytes
+   Status: 200, Content size: 33595 bytes
 ✅ Render Photo Management (/admin/photos/manage)
-   Status: 200, Content size: 34077 bytes
+   Status: 200, Content size: 34078 bytes
 
 ════════════════════════════════════════════════════════
 🎉 ALL TESTS PASSED! System is working correctly.
