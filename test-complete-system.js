@@ -29,30 +29,42 @@ function makeRequest(method, path, data = null) {
       },
     };
 
-    const req = http.request(options, (res) => {
-      let responseData = '';
-      res.on('data', (chunk) => {
-        responseData += chunk;
-      });
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(responseData);
-          resolve({ status: res.statusCode, data: parsed, headers: res.headers });
-        } catch (e) {
-          resolve({ status: res.statusCode, data: responseData, headers: res.headers });
-        }
-      });
-    });
-
-    req.on('error', reject);
 
     if (data) {
-      const dataStr = JSON.stringify(data);
-      options.headers['Content-Length'] = Buffer.byteLength(dataStr);
-      req.write(dataStr);
-
+      const payload = JSON.stringify(data);
+      options.headers['Content-Length'] = Buffer.byteLength(payload);
+      const req = http.request(options, (res) => {
+        let responseData = '';
+        res.on('data', (chunk) => { responseData += chunk; });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(responseData);
+            resolve({ status: res.statusCode, data: parsed, headers: res.headers });
+          } catch (e) {
+            resolve({ status: res.statusCode, data: responseData, headers: res.headers });
+          }
+        });
+      });
+      req.on('error', reject);
+      req.write(payload);
+      req.end();
+    } else {
+      const req = http.request(options, (res) => {
+        let responseData = '';
+        res.on('data', (chunk) => { responseData += chunk; });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(responseData);
+            resolve({ status: res.statusCode, data: parsed, headers: res.headers });
+          } catch (e) {
+            resolve({ status: res.statusCode, data: responseData, headers: res.headers });
+          }
+        });
+      });
+      req.on('error', reject);
+      req.end();
     }
-    req.end();
+
   });
 }
 
