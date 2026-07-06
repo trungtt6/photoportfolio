@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 // Color codes for terminal output
 const colors = {
@@ -28,27 +29,42 @@ function makeRequest(method, path, data = null) {
       },
     };
 
-    const req = http.request(options, (res) => {
-      let responseData = '';
-      res.on('data', (chunk) => {
-        responseData += chunk;
-      });
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(responseData);
-          resolve({ status: res.statusCode, data: parsed, headers: res.headers });
-        } catch (e) {
-          resolve({ status: res.statusCode, data: responseData, headers: res.headers });
-        }
-      });
-    });
-
-    req.on('error', reject);
 
     if (data) {
-      req.write(JSON.stringify(data));
+      const payload = JSON.stringify(data);
+      options.headers['Content-Length'] = Buffer.byteLength(payload);
+      const req = http.request(options, (res) => {
+        let responseData = '';
+        res.on('data', (chunk) => { responseData += chunk; });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(responseData);
+            resolve({ status: res.statusCode, data: parsed, headers: res.headers });
+          } catch (e) {
+            resolve({ status: res.statusCode, data: responseData, headers: res.headers });
+          }
+        });
+      });
+      req.on('error', reject);
+      req.write(payload);
+      req.end();
+    } else {
+      const req = http.request(options, (res) => {
+        let responseData = '';
+        res.on('data', (chunk) => { responseData += chunk; });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(responseData);
+            resolve({ status: res.statusCode, data: parsed, headers: res.headers });
+          } catch (e) {
+            resolve({ status: res.statusCode, data: responseData, headers: res.headers });
+          }
+        });
+      });
+      req.on('error', reject);
+      req.end();
     }
-    req.end();
+
   });
 }
 
@@ -103,114 +119,116 @@ async function runTests() {
     logTest('Database Connection Test', false, `Error: ${e.message}`);
   }
 
-  // ========== PHOTO LIST TESTS ==========
-  console.log(`\n${colors.yellow}TEST GROUP 2: PHOTO RETRIEVAL${colors.reset}`);
+  // ========== PHOTO MANAGEMENT CRUD TESTS ==========
+  console.log(`\n${colors.yellow}TEST GROUP 2: FULL PHOTO CRUD (Create, Read, Update, Delete)${colors.reset}`);
   console.log('─'.repeat(50));
 
-  let photoList = [];
-  let photoId = null;
+  let testPhotoId = `test-photo-${Date.now()}`;
+  let bulkTestId1 = `bulk-test-1-${Date.now()}`;
+  let bulkTestId2 = `bulk-test-2-${Date.now()}`;
+  let photoCreated = false;
+
+  // CREATE
+  const createData = {
+    photoId: testPhotoId,
+    filename: `test-${Date.now()}.jpg`,
+    title: `Integration Test Photo ${Date.now()}`,
+    description: 'This is an automated test photo to ensure full CRUD operations work.',
+    category: 'automated-test',
+    tags: ['test', 'automation'],
+    featured: false,
+    price: 19.99,
+  };
 
   try {
-    const response = await makeRequest('GET', '/api/admin/photos/list');
+    const response = await makeRequest('POST', '/api/admin/photos/list', createData);
+    photoCreated = response.status === 201;
     logTest(
-      'Fetch All Photos (GET /api/admin/photos/list)',
-      response.status === 200 && Array.isArray(response.data),
-      `Status: ${response.status}, Photos: ${response.data?.length || 0}`
+      'Create New Photo (POST /api/admin/photos/list)',
+      photoCreated,
+      `Status: ${response.status}, ID: ${response.data?.photoId || 'Unknown'}`
     );
-    if (response.data && Array.isArray(response.data)) {
-      photoList = response.data;
-      if (photoList.length > 0) {
-        photoId = photoList[0].id;
-        console.log(`   ${colors.cyan}Found ${photoList.length} photos in database${colors.reset}`);
-        photoList.slice(0, 3).forEach((p) => {
-          console.log(`     • ${p.title || p.filename} (ID: ${p.id})`);
-        });
-      }
-    }
+
+    // Create bulk test photos
+    await makeRequest('POST', '/api/admin/photos/list', { ...createData, photoId: bulkTestId1, title: 'Bulk Test 1' });
+    await makeRequest('POST', '/api/admin/photos/list', { ...createData, photoId: bulkTestId2, title: 'Bulk Test 2' });
   } catch (e) {
-    logTest('Fetch All Photos', false, `Error: ${e.message}`);
+    logTest('Create New Photo', false, `Error: ${e.message}`);
   }
 
-  // ========== PHOTO DETAIL TESTS ==========
-  console.log(`\n${colors.yellow}TEST GROUP 3: PHOTO DETAILS${colors.reset}`);
-  console.log('─'.repeat(50));
-
-  if (photoId) {
+  // READ (List & Single)
+  if (photoCreated) {
     try {
-      const response = await makeRequest('GET', `/api/admin/photos/${photoId}`);
+      const response = await makeRequest('GET', `/api/admin/photos/${testPhotoId}`);
       logTest(
-        `Fetch Single Photo (GET /api/admin/photos/${photoId})`,
-        response.status === 200 && response.data?.id,
-        `Photo: ${response.data?.title || response.data?.filename}`
+        `Read Created Photo (GET /api/admin/photos/${testPhotoId})`,
+        response.status === 200 && response.data?.photoId === testPhotoId,
+        `Title: ${response.data?.title}`
       );
-
-      if (response.data) {
-        console.log(`   ${colors.cyan}Photo Details:${colors.reset}`);
-        console.log(`     • Filename: ${response.data.filename}`);
-        console.log(`     • Title: ${response.data.title || 'N/A'}`);
-        console.log(`     • Category: ${response.data.category || 'N/A'}`);
-        console.log(`     • Featured: ${response.data.featured}`);
-        console.log(`     • Processed Size: ${response.data.processedSizeMB || 'N/A'} MB`);
-      }
     } catch (e) {
-      logTest('Fetch Single Photo', false, `Error: ${e.message}`);
+      logTest('Read Created Photo', false, `Error: ${e.message}`);
     }
-  }
 
-  // ========== PHOTO UPDATE TEST ==========
-  console.log(`\n${colors.yellow}TEST GROUP 4: PHOTO MANAGEMENT (UPDATE)${colors.reset}`);
-  console.log('─'.repeat(50));
-
-  if (photoId) {
+    // UPDATE
     const updateData = {
-      title: `Updated Test Title - ${new Date().getTime()}`,
-      description: 'This is a test update',
-      category: 'test-update',
-      price: 99.99,
+      title: `${createData.title} - UPDATED`,
+      price: 29.99,
+      featured: true
     };
 
     try {
-      const response = await makeRequest('PUT', `/api/admin/photos/${photoId}`, updateData);
+      const response = await makeRequest('PUT', `/api/admin/photos/${testPhotoId}`, updateData);
       logTest(
-        `Update Photo (PUT /api/admin/photos/${photoId})`,
-        response.status === 200,
-        `New title: "${response.data?.title || 'Update failed'}"`
+        `Update Photo (PUT /api/admin/photos/${testPhotoId})`,
+        response.status === 200 && response.data?.title === updateData.title,
+        `New title: "${response.data?.title || 'Update failed'}", Status: ${response.status}`
       );
     } catch (e) {
       logTest('Update Photo', false, `Error: ${e.message}`);
     }
 
-    // Verify update
+    // DELETE SINGLE
     try {
-      const response = await makeRequest('GET', `/api/admin/photos/${photoId}`);
-      const titleMatches = response.data?.title === updateData.title;
+      const response = await makeRequest('DELETE', `/api/admin/photos/${testPhotoId}`);
       logTest(
-        'Verify Update Persisted',
-        titleMatches && response.status === 200,
-        `Title verified: ${titleMatches}`
+        `Delete Single Photo (DELETE /api/admin/photos/${testPhotoId})`,
+        response.status === 200,
+        `Status: ${response.status}`
       );
     } catch (e) {
-      logTest('Verify Update Persisted', false, `Error: ${e.message}`);
+      logTest('Delete Single Photo', false, `Error: ${e.message}`);
+    }
+
+    // BULK DELETE
+    try {
+      const response = await makeRequest('DELETE', '/api/admin/photos/bulk', { ids: [bulkTestId1, bulkTestId2] });
+      logTest(
+        'Bulk Delete Photos (DELETE /api/admin/photos/bulk)',
+        response.status === 200 && response.data?.count === 2,
+        `Deleted ${response.data?.count || 0} photos, Status: ${response.status}`
+      );
+    } catch (e) {
+      logTest('Bulk Delete Photos', false, `Error: ${e.message}`);
     }
   }
 
   // ========== PUBLIC API TESTS ==========
-  console.log(`\n${colors.yellow}TEST GROUP 5: PUBLIC ENDPOINTS${colors.reset}`);
+  console.log(`\n${colors.yellow}TEST GROUP 3: PUBLIC ENDPOINTS & PAGINATION${colors.reset}`);
   console.log('─'.repeat(50));
 
   try {
-    const response = await makeRequest('GET', '/api/photos');
+    const response = await makeRequest('GET', '/api/photos?page=1&limit=2');
     logTest(
-      'Public Photos Endpoint (GET /api/photos)',
-      response.status === 200 && Array.isArray(response.data),
-      `Status: ${response.status}, Photos: ${response.data?.length || 0}`
+      'Public Photos Pagination (GET /api/photos?page=1&limit=2)',
+      response.status === 200 && Array.isArray(response.data) && response.data.length <= 2,
+      `Status: ${response.status}, Returned length: ${response.data?.length || 0}`
     );
   } catch (e) {
-    logTest('Public Photos Endpoint', false, `Error: ${e.message}`);
+    logTest('Public Photos Pagination', false, `Error: ${e.message}`);
   }
 
   // ========== PAGE RENDERING TESTS ==========
-  console.log(`\n${colors.yellow}TEST GROUP 6: PAGE RENDERING${colors.reset}`);
+  console.log(`\n${colors.yellow}TEST GROUP 4: PAGE RENDERING${colors.reset}`);
   console.log('─'.repeat(50));
 
   const pages = [
@@ -218,6 +236,8 @@ async function runTests() {
     { path: '/gallery', name: 'Gallery' },
     { path: '/admin', name: 'Admin Dashboard' },
     { path: '/admin/photos/manage', name: 'Photo Management' },
+    { path: '/checkout', name: 'Checkout Page' },
+    { path: '/sitemap.xml', name: 'Dynamic Sitemap' },
   ];
 
   for (const page of pages) {

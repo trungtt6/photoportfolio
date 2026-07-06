@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import GalleryCard from '@/components/GalleryCard';
 import { PHOTO_CATEGORIES } from '@/lib/photos';
 import type { Photo, PhotoCategory } from '@/types';
@@ -9,25 +9,53 @@ export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState<PhotoCategory | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    async function loadPhotos() {
-      try {
-        // Call API to get photos instead of client-side getPhotos()
-        const response = await fetch('/api/photos');
-        if (response.ok) {
-          const loadedPhotos = await response.json();
+  const loadPhotos = useCallback(async (pageNum: number, isNewSearch: boolean = false) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/photos?page=${pageNum}&limit=12`);
+      if (response.ok) {
+        const loadedPhotos = await response.json();
+
+        if (loadedPhotos.length < 12) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+
+        if (isNewSearch) {
           setPhotos(loadedPhotos);
         } else {
-          setPhotos([]);
+          setPhotos((prev) => [...prev, ...loadedPhotos]);
         }
-      } catch (err) {
-        console.warn('Could not load photos', err);
-        setPhotos([]);
+      } else {
+        if (isNewSearch) setPhotos([]);
+        setHasMore(false);
       }
+    } catch (err) {
+      console.warn('Could not load photos', err);
+      if (isNewSearch) setPhotos([]);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
     }
-    loadPhotos();
   }, []);
+
+  // Initial load
+  useEffect(() => {
+    loadPhotos(1, true);
+  }, [loadPhotos]);
+
+  const handleLoadMore = () => {
+    if (!isLoading && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadPhotos(nextPage, false);
+    }
+  };
 
   // Filter photos
   let filteredPhotos: Photo[] = photos;
@@ -41,7 +69,7 @@ export default function GalleryPage() {
       (photo) =>
         photo.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         photo.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        photo.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        (photo.tags && photo.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())))
     );
   }
 
@@ -107,10 +135,22 @@ export default function GalleryPage() {
                 Showing {filteredPhotos.length} photo{filteredPhotos.length !== 1 ? 's' : ''}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPhotos.map((photo) => (
-                  <GalleryCard key={photo.id} photo={photo} />
+                {filteredPhotos.map((photo, index) => (
+                  <GalleryCard key={`${photo.id}-${index}`} photo={photo} />
                 ))}
               </div>
+
+              {hasMore && selectedCategory === 'all' && !searchTerm && (
+                <div className="mt-12 text-center">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={isLoading}
+                    className="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition disabled:opacity-50"
+                  >
+                    {isLoading ? 'Loading...' : 'Load More'}
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <div className="text-center py-20">

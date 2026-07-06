@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import ThemeToggle from './ThemeToggle';
+import { useCart } from '@/contexts/CartContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { cart } = useCart();
 
   return (
     <header className="sticky top-0 z-50 bg-black text-white shadow-lg">
@@ -32,11 +34,27 @@ export default function Header() {
           <Link href="/contact" className="hover:text-gray-300 transition">
             Contact
           </Link>
+          <Link href="/checkout" className="relative hover:text-gray-300 transition">
+            🛒 Cart
+            {cart.length > 0 && (
+              <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                {cart.length}
+              </span>
+            )}
+          </Link>
           <ThemeToggle />
         </div>
 
         {/* Mobile Menu & Theme */}
-        <div className="md:hidden flex items-center gap-2">
+        <div className="md:hidden flex items-center gap-4">
+          <Link href="/checkout" className="relative hover:text-gray-300 transition">
+            🛒
+            {cart.length > 0 && (
+              <span className="absolute -top-2 -right-3 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                {cart.length}
+              </span>
+            )}
+          </Link>
           <ThemeToggle />
           <button
             className="flex flex-col gap-1.5 focus:outline-none"
@@ -87,6 +105,13 @@ export default function Header() {
             onClick={() => setIsMenuOpen(false)}
           >
             Contact
+          </Link>
+          <Link
+            href="/checkout"
+            className="block py-2 hover:text-gray-300 transition font-bold text-blue-400"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            View Cart ({cart.length})
           </Link>
         </div>
       )}

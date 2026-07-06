@@ -1,0 +1,86 @@
+
+╔════════════════════════════════════════════════════════╗
+║  COMPREHENSIVE SYSTEM TEST SUITE                   ║
+╚════════════════════════════════════════════════════════╝
+
+⏳ Waiting for server to be ready...
+✓ Server is ready!
+
+TEST GROUP 1: DATABASE CONNECTIVITY
+──────────────────────────────────────────────────
+✅ Database Connection Test
+   Status: 200, Connected: undefined
+
+TEST GROUP 2: FULL PHOTO CRUD (Create, Read, Update, Delete)
+──────────────────────────────────────────────────
+✅ Create New Photo (POST /api/admin/photos/list)
+   Status: 201, ID: test-photo-1783330836906
+✅ Read Created Photo (GET /api/admin/photos/test-photo-1783330836906)
+   Title: Integration Test Photo 1783330836906
+✅ Update Photo (PUT /api/admin/photos/test-photo-1783330836906)
+   New title: "Integration Test Photo 1783330836906 - UPDATED", Status: 200
+✅ Delete Single Photo (DELETE /api/admin/photos/test-photo-1783330836906)
+   Status: 200
+✅ Bulk Delete Photos (DELETE /api/admin/photos/bulk)
+   Deleted 2 photos, Status: 200
+
+TEST GROUP 3: PUBLIC ENDPOINTS & PAGINATION
+──────────────────────────────────────────────────
+✅ Public Photos Pagination (GET /api/photos?page=1&limit=2)
+   Status: 200, Returned length: 2
+
+TEST GROUP 4: PAGE RENDERING
+──────────────────────────────────────────────────
+✅ Render Homepage (/)
+   Status: 200, Content size: 120010 bytes
+✅ Render Gallery (/gallery)
+   Status: 200, Content size: 34336 bytes
+✅ Render Admin Dashboard (/admin)
+   Status: 200, Content size: 34023 bytes
+✅ Render Photo Management (/admin/photos/manage)
+   Status: 200, Content size: 34506 bytes
+✅ Render Checkout Page (/checkout)
+   Status: 200, Content size: 32106 bytes
+✅ Render Dynamic Sitemap (/sitemap.xml)
+   Status: 200, Content size: 4834 bytes
+
+╔════════════════════════════════════════════════════════╗
+║  TEST SUMMARY                                      ║
+╚════════════════════════════════════════════════════════╝
+
+✅ PASSED: 13
+❌ FAILED: 0
+📊 PASS RATE: 100.0%
+
+DETAILED RESULTS:
+──────────────────────────────────────────────────
+✅ Database Connection Test
+   Status: 200, Connected: undefined
+✅ Create New Photo (POST /api/admin/photos/list)
+   Status: 201, ID: test-photo-1783330836906
+✅ Read Created Photo (GET /api/admin/photos/test-photo-1783330836906)
+   Title: Integration Test Photo 1783330836906
+✅ Update Photo (PUT /api/admin/photos/test-photo-1783330836906)
+   New title: "Integration Test Photo 1783330836906 - UPDATED", Status: 200
+✅ Delete Single Photo (DELETE /api/admin/photos/test-photo-1783330836906)
+   Status: 200
+✅ Bulk Delete Photos (DELETE /api/admin/photos/bulk)
+   Deleted 2 photos, Status: 200
+✅ Public Photos Pagination (GET /api/photos?page=1&limit=2)
+   Status: 200, Returned length: 2
+✅ Render Homepage (/)
+   Status: 200, Content size: 120010 bytes
+✅ Render Gallery (/gallery)
+   Status: 200, Content size: 34336 bytes
+✅ Render Admin Dashboard (/admin)
+   Status: 200, Content size: 34023 bytes
+✅ Render Photo Management (/admin/photos/manage)
+   Status: 200, Content size: 34506 bytes
+✅ Render Checkout Page (/checkout)
+   Status: 200, Content size: 32106 bytes
+✅ Render Dynamic Sitemap (/sitemap.xml)
+   Status: 200, Content size: 4834 bytes
+
+════════════════════════════════════════════════════════
+🎉 ALL TESTS PASSED! System is working correctly.
+════════════════════════════════════════════════════════
